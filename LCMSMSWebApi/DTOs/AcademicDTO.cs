@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 
-namespace LCMSMSWebApi.Models
+namespace LCMSMSWebApi.DTOs
 {
-    public class Academic
+    public class AcademicDTO
     {
         public int AcademicID { get; set; }
         public string Grade { get; set; }

@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 
-namespace LCMSMSWebApi.Models
+namespace LCMSMSWebApi.DTOs
 {
-    public class Picture
+    public class PictureDTO
     {
         public int PictureID { get; set; }
         public string PictureUri { get; set; }
         public string Caption { get; set; }
         public DateTime EntryDate { get; set; }
-        public List<OrphanPicture> OrphanPictures { get; set; }
+        public List<OrphanPictureDTO> OrphanPictures { get; set; }
     }
 }

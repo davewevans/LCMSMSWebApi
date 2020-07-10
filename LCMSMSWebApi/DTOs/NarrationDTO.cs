@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace LCMSMSWebApi.Models
+namespace LCMSMSWebApi.DTOs
 {
-    public class Narration
+    public class NarrationDTO
     {
         public int NarrationID { get; set; }
         public string Subject { get; set; }

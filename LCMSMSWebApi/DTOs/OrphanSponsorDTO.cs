@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LCMSMSWebApi.Models
+namespace LCMSMSWebApi.DTOs
 {
-    public class OrphanPicture
+    public class OrphanSponsorDTO
     {
         public int OrphanID { get; set; }
-        public int PictureID { get; set; }
+        public int SponsorID { get; set; }
+        public OrphanDTO Orphan { get; set; }
+        public SponsorDTO Sponsor { get; set; }
         public DateTime EntryDate { get; set; }
-        public Orphan Orphan { get; set; }
-        public Picture Picture { get; set; }
     }
 }

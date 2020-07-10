@@ -6,15 +6,14 @@ using LCMSMSWebApi.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LCMManagementApi.Controllers
+namespace LCMSMSWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TestController : ControllerBase
+    public class OrphansController : ControllerBase
     {
-        private LCMSMSDbContext _dbContext;
-
-        public TestController(LCMSMSDbContext dbContext)
+        private ApplicationDbContext _dbContext;
+        public OrphansController(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -22,9 +21,7 @@ namespace LCMManagementApi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            //bool canConnect = _dbContext.Database.CanConnect();
-
-            return Ok("Test");
+            return Ok(_dbContext.Orphans.Take(10).ToList());
         }
     }
 }

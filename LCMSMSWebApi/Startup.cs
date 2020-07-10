@@ -33,10 +33,10 @@ namespace LCMSMSWebApi
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
             // Paul's db
-            services.AddDbContext<PaulDbContext>(option =>
-                option.UseSqlServer(@"Server=tcp:lcmsmsserver.database.windows.net,1433;Database=SMSDatabase;User ID=Pbolden;Password=K3nya4ever;Trusted_Connection=False;Encrypt=True;"));
+            //services.AddDbContext<PaulDbContext>(option =>
+            //    option.UseSqlServer(@"Server=tcp:lcmsmsserver.database.windows.net,1433;Database=SMSDatabase;User ID=Pbolden;Password=K3nya4ever;Trusted_Connection=False;Encrypt=True;"));
 
-            services.AddDbContext<LCMSMSDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
 
