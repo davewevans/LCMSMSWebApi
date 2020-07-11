@@ -4,14 +4,16 @@ using LCMSMSWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200710182407_ChangeSateToState")]
+    partial class ChangeSateToState
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,21 +100,19 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("GuardianID")
+                    b.Property<int>("GuardianID")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OrphanID")
+                    b.Property<int>("OrphanID")
                         .HasColumnType("int");
 
                     b.Property<string>("Subject")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("NarrationID");
-
-                    b.HasIndex("OrphanID");
 
                     b.ToTable("Narrations");
                 });
@@ -152,8 +152,6 @@ namespace LCMSMSWebApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("OrphanID");
-
-                    b.HasIndex("GuardianID");
 
                     b.ToTable("Orphans");
                 });
@@ -252,20 +250,6 @@ namespace LCMSMSWebApi.Migrations
                     b.HasKey("SponsorID");
 
                     b.ToTable("Sponsors");
-                });
-
-            modelBuilder.Entity("LCMSMSWebApi.Models.Narration", b =>
-                {
-                    b.HasOne("LCMSMSWebApi.Models.Orphan", null)
-                        .WithMany("Narrations")
-                        .HasForeignKey("OrphanID");
-                });
-
-            modelBuilder.Entity("LCMSMSWebApi.Models.Orphan", b =>
-                {
-                    b.HasOne("LCMSMSWebApi.Models.Guardian", null)
-                        .WithMany("Orphans")
-                        .HasForeignKey("GuardianID");
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.OrphanPicture", b =>

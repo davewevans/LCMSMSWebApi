@@ -4,14 +4,16 @@ using LCMSMSWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200710204904_Added1ToManyRelationships")]
+    partial class Added1ToManyRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,13 +100,10 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("GuardianID")
-                        .HasColumnType("int");
-
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OrphanID")
+                    b.Property<int>("OrphanID")
                         .HasColumnType("int");
 
                     b.Property<string>("Subject")
@@ -258,7 +257,9 @@ namespace LCMSMSWebApi.Migrations
                 {
                     b.HasOne("LCMSMSWebApi.Models.Orphan", null)
                         .WithMany("Narrations")
-                        .HasForeignKey("OrphanID");
+                        .HasForeignKey("OrphanID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.Orphan", b =>

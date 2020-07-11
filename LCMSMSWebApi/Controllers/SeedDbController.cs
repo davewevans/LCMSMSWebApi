@@ -6,6 +6,7 @@ using LCMSMSWebApi.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -13,49 +14,53 @@ namespace LCMSMSWebApi.Controllers
     [ApiController]
     public class SeedDbController : ControllerBase
     {
-        private AppDbContext _dbContext;
-        private PaulDbContext _paulDbContext;
-        public SeedDbController(AppDbContext dbContext, PaulDbContext paulDbContext)
+        private readonly ApplicationDbContext _dbContext;
+        private readonly IWebHostEnvironment _env;
+
+        //private PaulDbContext _paulDbContext;
+        public SeedDbController(ApplicationDbContext dbContext, IWebHostEnvironment env)
         {
             _dbContext = dbContext;
-            _paulDbContext = paulDbContext;
+            _env = env;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            bool canConnect = _paulDbContext.Database.CanConnect();
 
-            //return Ok(canConnect);
+            // var seeder = new DummyDataSeeder(_dbContext, _env);
+            // seeder.SeedGuardians();
+            // seeder.SeedSponsors();
+            // seeder.SeedNarrations();
+            // seeder.SeedPictures();
+            // seeder.SeedOrphanPictures();
+            // seeder.SeedOrphanSponsors();
 
-            //BuildLocalOrphanDB();
-
-            var records = _dbContext.Narrations.ToList();
-            return Ok(records);
+            return Ok();
         }
 
 
-        public void BuildLocalOrphanDB()
-        {
-            var outContext = _dbContext;
-            var inContext = _paulDbContext;
+        //public void BuildLocalOrphanDB()
+        //{
+        //    var outContext = _dbContext;
+        //    var inContext = _paulDbContext;
 
-            var inRecs = (from r in inContext.Narrations select r);
-            foreach (var r in inRecs)
-            {
-                outContext.Narrations.Add(r);
-            }
-            outContext.Database.OpenConnection();
-            try
-            {
-                outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Narrations ON");
-                outContext.SaveChanges();
-                outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Narrations OFF");
-            }
-            finally
-            {
-                outContext.Database.CloseConnection();
-            }
-        }
+        //    var inRecs = (from r in inContext.Narrations select r);
+        //    foreach (var r in inRecs)
+        //    {
+        //        outContext.Narrations.Add(r);
+        //    }
+        //    outContext.Database.OpenConnection();
+        //    try
+        //    {
+        //        outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Narrations ON");
+        //        outContext.SaveChanges();
+        //        outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Narrations OFF");
+        //    }
+        //    finally
+        //    {
+        //        outContext.Database.CloseConnection();
+        //    }
+        //}
     }
 }

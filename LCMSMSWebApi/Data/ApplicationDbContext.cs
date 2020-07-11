@@ -34,9 +34,5 @@ namespace LCMSMSWebApi.Data
         public DbSet<OrphanPicture> OrphanPictures { get; set; }
         public DbSet<OrphanSponsor> OrphanSponsors { get; set; }
 
-        private void SeedData(ModelBuilder modelBuilder)
-        {
-            var dataSeeder = new DummyDataSeeder(modelBuilder);
-        }
     }
 }

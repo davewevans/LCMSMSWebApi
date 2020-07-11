@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using LCMSMSWebApi.Data;
+using LCMSMSWebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,6 +34,10 @@ namespace LCMSMSWebApi
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddScoped<IFileStorageService, AzureStorageService>();
+            
             // Paul's db
             //services.AddDbContext<PaulDbContext>(option =>
             //    option.UseSqlServer(@"Server=tcp:lcmsmsserver.database.windows.net,1433;Database=SMSDatabase;User ID=Pbolden;Password=K3nya4ever;Trusted_Connection=False;Encrypt=True;"));
@@ -49,6 +55,8 @@ namespace LCMSMSWebApi
             }
 
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 
