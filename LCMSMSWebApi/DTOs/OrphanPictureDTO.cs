@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class OrphanPictureDTO
+    public class OrphanPictureDto
     {
         public int OrphanID { get; set; }
         public int PictureID { get; set; }
         public DateTime EntryDate { get; set; }
-        public OrphanDTO Orphan { get; set; }
-        public PictureDTO Picture { get; set; }
+        public OrphanDto Orphan { get; set; }
+        public PictureDto Picture { get; set; }
     }
 }

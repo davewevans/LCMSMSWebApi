@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class PictureDTO
+    public class PictureDto
     {
         [JsonIgnore]
         public int PictureID { get; set; }
@@ -15,10 +15,8 @@ namespace LCMSMSWebApi.DTOs
 
         public string Caption { get; set; }
 
-        [JsonProperty("entry_date")]
         public DateTime EntryDate { get; set; }
 
-        [JsonIgnore]
-        public List<OrphanPictureDTO> OrphanPictures { get; set; }
+        public List<OrphanPictureDto> OrphanPictures { get; set; }
     }
 }

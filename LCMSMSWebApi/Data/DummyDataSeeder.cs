@@ -1,14 +1,11 @@
-﻿using System;
+﻿using LCMSMSWebApi.DTOs;
+using LCMSMSWebApi.Models;
+using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using LCMSMSWebApi.DTOs;
-using LCMSMSWebApi.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LCMSMSWebApi.Data
 {
@@ -17,7 +14,7 @@ namespace LCMSMSWebApi.Data
         private readonly ApplicationDbContext _dbContext;
         private readonly IWebHostEnvironment _env;
 
-        private static Random _random = new Random();
+        private static readonly Random Random = new Random();
 
         private string _folderName = "DummyData";
 
@@ -47,7 +44,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<GuardianDTO>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<GuardianDto>>(dummyData);
 
             foreach (var obj in deserializedObj)
             {
@@ -73,7 +70,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<SponsorDTO>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<SponsorDto>>(dummyData);
 
             foreach (var obj in deserializedObj)
             {
@@ -103,7 +100,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<NarrationDTO>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<NarrationDto>>(dummyData);
 
             //var orphans = _dbContext.Orphans.ToList();
             var guardians = _dbContext.Guardians.ToList();
@@ -115,7 +112,7 @@ namespace LCMSMSWebApi.Data
                     Subject = obj.Subject,
                     Note = obj.Note,
                     EntryDate = obj.EntryDate,
-                    GuardianID = guardians[_random.Next(guardians.Count)].GuardianID
+                    GuardianID = guardians[Random.Next(guardians.Count)].GuardianID
                 });
             }
 
@@ -131,7 +128,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<PictureDTO>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<PictureDto>>(dummyData);
 
             foreach (var obj in deserializedObj)
             {
@@ -165,7 +162,7 @@ namespace LCMSMSWebApi.Data
             Orphan orphan;
             foreach (var picture in pictures)
             {
-                orphan = orphans[_random.Next(orphans.Count)];
+                orphan = orphans[Random.Next(orphans.Count)];
                 _dbContext.OrphanPictures.Add(new OrphanPicture
                 {
                     OrphanID = orphan.OrphanID,
@@ -185,7 +182,7 @@ namespace LCMSMSWebApi.Data
             Orphan orphan;
             foreach (var sponsor in sponsors)
             {
-                orphan = orphans[_random.Next(orphans.Count)];
+                orphan = orphans[Random.Next(orphans.Count)];
                 _dbContext.OrphanSponsors.Add(new OrphanSponsor
                 {
                     OrphanID = orphan.OrphanID,
@@ -199,9 +196,9 @@ namespace LCMSMSWebApi.Data
 
         private static DateTime GetRandomDate(int startYear)
         {
-            int year = _random.Next(startYear, DateTime.Now.Year + 1);
-            int month = _random.Next(1, DateTime.Now.Month);
-            int day = _random.Next(1, DateTime.DaysInMonth(year, month) + 1);
+            int year = Random.Next(startYear, DateTime.Now.Year + 1);
+            int month = Random.Next(1, DateTime.Now.Month);
+            int day = Random.Next(1, DateTime.DaysInMonth(year, month) + 1);
 
             return new DateTime(year, month, day);
         }

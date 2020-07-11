@@ -12,8 +12,6 @@
 
   <ItemGroup>
     <Folder Include="enums\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="Services\" />
     <Folder Include="Validations\" />
     <Folder Include="wwwroot\DummyData\" />
   </ItemGroup>

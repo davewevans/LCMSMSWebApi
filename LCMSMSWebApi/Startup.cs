@@ -35,7 +35,7 @@ namespace LCMSMSWebApi
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
             services.AddAutoMapper(typeof(Startup));
-
+            
             services.AddScoped<IFileStorageService, AzureStorageService>();
             
             // Paul's db
@@ -44,6 +44,8 @@ namespace LCMSMSWebApi
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
