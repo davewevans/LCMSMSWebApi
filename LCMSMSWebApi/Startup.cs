@@ -37,13 +37,18 @@ namespace LCMSMSWebApi
             services.AddAutoMapper(typeof(Startup));
             
             services.AddScoped<IFileStorageService, AzureStorageService>();
-            
-            // Paul's db
-            //services.AddDbContext<PaulDbContext>(option =>
-            //    option.UseSqlServer(@"Server=tcp:lcmsmsserver.database.windows.net,1433;Database=SMSDatabase;User ID=Pbolden;Password=K3nya4ever;Trusted_Connection=False;Encrypt=True;"));
 
+            // Paul's db
+            services.AddDbContext<PaulDbContext>(option =>
+                option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
+
+            // Local development
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            // Azure development 
+            services.AddDbContext<AzureDevDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("AzureDevConnection")));
 
             services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();
         }

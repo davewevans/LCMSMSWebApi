@@ -7,18 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LCMSMSWebApi.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class AzureDevDbContext: DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public AzureDevDbContext(DbContextOptions<AzureDevDbContext> options): base(options)
         {
-                
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<OrphanPicture>().HasKey(x => new { x.OrphanID, x.PictureID });
             modelBuilder.Entity<OrphanSponsor>().HasKey(x => new { x.OrphanID, x.SponsorID });
-
 
             base.OnModelCreating(modelBuilder);
         }
@@ -32,6 +31,5 @@ namespace LCMSMSWebApi.Data
         public DbSet<DbUpdate> DbUpdates { get; set; }
         public DbSet<OrphanPicture> OrphanPictures { get; set; }
         public DbSet<OrphanSponsor> OrphanSponsors { get; set; }
-
     }
 }

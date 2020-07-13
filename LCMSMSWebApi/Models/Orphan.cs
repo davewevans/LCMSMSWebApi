@@ -35,6 +35,11 @@ namespace LCMSMSWebApi.Models
         public List<OrphanPicture> OrphanPictures { get; set; }
 
         public List<OrphanSponsor> OrphanSponsors { get; set; }
+
+        public override string ToString()
+        {
+            return $"{ FirstName } { MiddleName } { LastName } { Gender } { DateOfBirth:d} { LCMStatus } { ProfileNumber }";
+        }
     }
 }
 

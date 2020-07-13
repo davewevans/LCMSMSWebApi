@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>a52ed2ab-fe41-4d79-b862-29587858b2a8</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data\PaulDbContext.cs" />
     <Compile Remove="enums\Gender.cs" />
     <Compile Remove="enums\LCMStatus.cs" />
   </ItemGroup>
