@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
 namespace LCMSMSWebApi
@@ -30,6 +32,14 @@ namespace LCMSMSWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(policy =>
+            {
+                policy.AddPolicy("CorsPolicy", options => options
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+            });
+
             services.AddControllers()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
@@ -38,9 +48,11 @@ namespace LCMSMSWebApi
             
             services.AddScoped<IFileStorageService, AzureStorageService>();
 
+            services.AddScoped<ImageService>();
+
             // Paul's db
-            services.AddDbContext<PaulDbContext>(option =>
-                option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
+            //services.AddDbContext<PaulDbContext>(option =>
+            //    option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
 
             // Local development
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -51,6 +63,11 @@ namespace LCMSMSWebApi
                 options.UseSqlServer(Configuration.GetConnectionString("AzureDevConnection")));
 
             services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "LCMSMS API", Version = "v1", });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,11 +78,20 @@ namespace LCMSMSWebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "LCMSMS API");
+            });
+
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 

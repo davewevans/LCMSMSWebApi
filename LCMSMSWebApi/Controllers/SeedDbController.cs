@@ -16,6 +16,7 @@ namespace LCMSMSWebApi.Controllers
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly AzureDevDbContext _azureDevDbContext;
+        // private readonly PaulDbContext _paulDbContext;
         private readonly IWebHostEnvironment _env;
 
         //private PaulDbContext _paulDbContext;
@@ -23,6 +24,7 @@ namespace LCMSMSWebApi.Controllers
         {
             _dbContext = dbContext;
             _azureDevDbContext = azureDevDbContext;
+           // _paulDbContext = paulDbContext;
             _env = env;
         }
 
@@ -31,35 +33,48 @@ namespace LCMSMSWebApi.Controllers
         {
 
             // var seeder = new DummyDataSeeder(_dbContext, _env);
+            //seeder.SeedAllDummyData();
+
             // seeder.SeedGuardians();
             // seeder.SeedSponsors();
             // seeder.SeedNarrations();
             // seeder.SeedPictures();
-            // seeder.SeedOrphanPictures();
             // seeder.SeedOrphanSponsors();
 
+            // seeder.SeedAcademicsForeignKey();
+
             // BuildLocalOrphanDB();
+
+            BuildAzureOrphanDB();
 
             return Ok();
         }
 
 
-        public void BuildLocalOrphanDB()
+        public void BuildAzureOrphanDB()
         {
+            // Orphans
+            // Sponsors
+            // Guardians
+            // Narrations
+            // Pictures
+            // OrphanSponsors
+            // Academics
+
             var inContext = _dbContext;
             var outContext = _azureDevDbContext;
 
-            var inRecs = (from r in inContext.Sponsors select r);
+            var inRecs = (from r in inContext.Academics select r);
             foreach (var r in inRecs)
             {
-                outContext.Sponsors.Add(r);
+                outContext.Academics.Add(r);
             }
             outContext.Database.OpenConnection();
             try
             {
-                outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Sponsors ON");
+                outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Academics ON");
                 outContext.SaveChanges();
-                outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Sponsors OFF");
+                outContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Academics OFF");
             }
             finally
             {

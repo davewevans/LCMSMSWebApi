@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using LCMSMSWebApi.Data;
 using LCMSMSWebApi.DTOs;
+using LCMSMSWebApi.Models;
+using LCMSMSWebApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -14,18 +18,98 @@ namespace LCMSMSWebApi.Controllers
     public class AcademicsController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IMapper _mapper;
+        private readonly ISyncDatabasesService _syncDatabasesService;
 
-        public AcademicsController(ApplicationDbContext dbContext)
+        public AcademicsController(ApplicationDbContext dbContext, IMapper mapper, ISyncDatabasesService syncDatabasesService)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
+            _syncDatabasesService = syncDatabasesService;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            // TODO map to dto
+            var academics = _dbContext.Academics.ToList();
+            var academicsDto = _mapper.Map<List<AcademicDto>>(academics);
 
-            return Ok(_dbContext.Academics.ToList());
+            return Ok(academicsDto);
+        }
+
+        [HttpGet("{id}", Name = "getAcademic")]
+        public async Task<ActionResult<AcademicDto>> Get(int id)
+        {
+            var academic = await _dbContext.Academics.FirstOrDefaultAsync(x => x.AcademicID == id);
+
+            if (academic == null)
+            {
+                return NotFound();
+            }
+
+            return _mapper.Map<AcademicDto>(academic);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] AcademicDto academicDto)
+        {
+            var academic = _mapper.Map<Academic>(academicDto);
+
+            await _dbContext.Academics.AddAsync(academic);
+            await _dbContext.SaveChangesAsync();
+
+            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
+
+            academicDto = _mapper.Map<AcademicDto>(academic);
+
+            return new CreatedAtRouteResult("getAcademic", new { id = academicDto.AcademicID }, academicDto);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Put(int id, [FromBody] AcademicUpdateDto academicUpdateDto)
+        {
+            //
+            // TODO
+            // Make sure client sends complete object.
+            // Put request can be error prone. For example,
+            // if the dto is sent by the client and a property is null,
+            // this null value will overwrite the value in the db.
+            // This may or may not be what we want!
+            //
+
+            var academic = await _dbContext.Academics.FirstOrDefaultAsync(x => x.AcademicID == id);
+
+            if (academic == null)
+            {
+                return NotFound();
+            }
+
+            academic = _mapper.Map(academicUpdateDto, academic);
+
+            await _dbContext.SaveChangesAsync();
+
+            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var exists = await _dbContext.Academics.AnyAsync(x => x.AcademicID == id);
+
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            var academicToDelete = await _dbContext.Academics.FirstOrDefaultAsync(x => x.AcademicID == id);
+            _dbContext.Academics.Remove(academicToDelete);
+            await _dbContext.SaveChangesAsync();
+
+            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
+
+            return NoContent();
         }
     }
 }

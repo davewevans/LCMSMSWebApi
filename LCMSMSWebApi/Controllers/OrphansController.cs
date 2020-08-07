@@ -22,35 +22,95 @@ namespace LCMSMSWebApi.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ISyncDatabasesService _syncDatabasesService;
+        private readonly IFileStorageService _fileStorageService;
+        private string _placeholderPic = "no_image_found_300x300.jpg";
 
-        public OrphansController(ApplicationDbContext dbContext, IMapper mapper, ISyncDatabasesService syncDatabasesService)
+        public OrphansController(ApplicationDbContext dbContext, 
+            IMapper mapper, 
+            ISyncDatabasesService syncDatabasesService,
+            IFileStorageService fileStorageService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _syncDatabasesService = syncDatabasesService;
+            _fileStorageService = fileStorageService;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            // TODO map to dto
-            var orphans = _dbContext.Orphans.ToList();
+            //
+            // TODO pagination
+            //
+            var orphans = await _dbContext.Orphans
+                .AsNoTracking()
+                .ToListAsync();
+
             var orphansDto = _mapper.Map<List<OrphanDto>>(orphans);
 
+            orphansDto.ForEach(orphan =>
+            {                
+                var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
+                orphan.ProfilePic = pic == null ?
+                new PictureDto { BaseUri = _fileStorageService.BaseUri, PictureFileName = _placeholderPic } 
+                : new PictureDto
+                {
+                    PictureID = pic.PictureID,
+                    PictureFileName = pic.PictureFileName,
+                    BaseUri = _fileStorageService.BaseUri,
+                    SetAsProfilePic = true,
+                    Caption = pic.Caption
+                };  
+            });            
             return Ok(orphansDto);
         }
 
         [HttpGet("{id}", Name = "getOrphan")]
-        public async Task<ActionResult<OrphanDto>> Get(int id)
+        public async Task<ActionResult<OrphanDetailsDto>> Get(int id)
         {
-            var orphan = await _dbContext.Orphans.FirstOrDefaultAsync(x => x.OrphanID == id);
+            var orphan = await _dbContext.Orphans
+                .AsNoTracking()
+                .Include("Pictures")
+                .Include("Guardian")
+                .Include("Narrations")
+                .Include("Academics")
+                .FirstOrDefaultAsync(x => x.OrphanID == id);
 
             if (orphan == null)
             {
                 return NotFound();
             }
 
-            return _mapper.Map<OrphanDto>(orphan);
+            var orphanDto = _mapper.Map<OrphanDetailsDto>(orphan);
+
+            // Assign the profile pic
+            orphanDto.ProfilePic = orphanDto.Pictures
+                .SingleOrDefault(p => p.PictureID == orphanDto.ProfilePictureID);
+
+            if (orphanDto.ProfilePic == null)
+            {
+                orphanDto.ProfilePic = new PictureDto
+                {
+                    BaseUri = _fileStorageService.BaseUri,
+                    PictureFileName = _placeholderPic
+                };
+            }
+
+            // Sets the base uri for each pic
+            orphanDto.Pictures.ForEach(p =>
+            {
+                p.BaseUri = _fileStorageService.BaseUri;
+                p.SetAsProfilePic = p.PictureID == orphanDto.ProfilePictureID;
+            });
+
+            // Include sponsors
+            var sponsors = from os in _dbContext.OrphanSponsors
+                           where os.OrphanID == orphanDto.OrphanID
+                           select os.Sponsor;
+
+            orphanDto.Sponsors = _mapper.Map<List<SponsorDto>>(sponsors.ToList());
+
+            return orphanDto;
         }
 
         [HttpPost]
@@ -69,7 +129,7 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] OrphanUpdateDto orphanUpdateDtoDto)
+        public async Task<ActionResult> Put(int id, [FromBody] OrphanEditDto orphanEditDto)
         {
             //
             // TODO
@@ -87,7 +147,7 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            orphan = _mapper.Map(orphanUpdateDtoDto, orphan);
+            orphan = _mapper.Map(orphanEditDto, orphan);
 
             await _dbContext.SaveChangesAsync();
 

@@ -16,7 +16,6 @@ namespace LCMSMSWebApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<OrphanPicture>().HasKey(x => new { x.OrphanID, x.PictureID });
             modelBuilder.Entity<OrphanSponsor>().HasKey(x => new { x.OrphanID, x.SponsorID });
 
             base.OnModelCreating(modelBuilder);
@@ -29,7 +28,6 @@ namespace LCMSMSWebApi.Data
         public DbSet<Sponsor> Sponsors { get; set; }
         public DbSet<Picture> Pictures { get; set; }
         public DbSet<DbUpdate> DbUpdates { get; set; }
-        public DbSet<OrphanPicture> OrphanPictures { get; set; }
         public DbSet<OrphanSponsor> OrphanSponsors { get; set; }
     }
 }

@@ -27,12 +27,41 @@ namespace LCMSMSWebApi.Data
 
         public void SeedAllDummyData()
         {
+            SeedOrphans();
             SeedGuardians();
             SeedSponsors();
             SeedNarrations();
-            SeedPictures();
-            // SeedOrphanPictures();
-            // SeedOrphanSponsors();
+            // SeedPictures();
+            SeedOrphanSponsors();
+        }
+
+        public void SeedOrphans()
+        {
+            string fileName = "orphans_mock_data.json";
+            string folderPath = Path.Combine(_env.WebRootPath, _folderName);
+
+            string filePath = Path.Combine(folderPath, fileName);
+
+            string dummyData = System.IO.File.ReadAllText(filePath);
+
+            var deserializedObj = JsonConvert.DeserializeObject<List<OrphanDto>>(dummyData);
+
+            foreach (var obj in deserializedObj)
+            {
+                _dbContext.Orphans.Add(new Orphan()
+                {
+                    FirstName = obj.FirstName,
+                    LastName = obj.LastName,
+                    EntryDate = obj.EntryDate,
+                    MiddleName = obj.MiddleName,
+                    Gender = obj.Gender,
+                    DateOfBirth = obj.DateOfBirth,
+                    LCMStatus = obj.LCMStatus,
+                    ProfileNumber = obj.ProfileNumber,
+                });
+            }
+
+            _dbContext.SaveChanges();
         }
 
         public void SeedGuardians()
@@ -119,60 +148,60 @@ namespace LCMSMSWebApi.Data
             _dbContext.SaveChanges();
         }
 
-        public void SeedPictures()
-        {
-            string fileName = "pictures_mock_data.json";
-            string folderPath = Path.Combine(_env.WebRootPath, _folderName);
+        //public void SeedPictures()
+        //{
+        //    string fileName = "pictures_mock_data.json";
+        //    string folderPath = Path.Combine(_env.WebRootPath, _folderName);
 
-            string filePath = Path.Combine(folderPath, fileName);
+        //    string filePath = Path.Combine(folderPath, fileName);
 
-            string dummyData = System.IO.File.ReadAllText(filePath);
+        //    string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<PictureDto>>(dummyData);
+        //    var deserializedObj = JsonConvert.DeserializeObject<List<PictureDto>>(dummyData);
 
-            foreach (var obj in deserializedObj)
-            {
-                _dbContext.Pictures.Add(new Picture()
-                {
-                    PictureUri = obj.PictureUri,
-                    Caption = obj.Caption,
-                    EntryDate = obj.EntryDate
-                });
-            }
+        //    foreach (var obj in deserializedObj)
+        //    {
+        //        _dbContext.Pictures.Add(new Picture()
+        //        {
+        //            PictureUri = obj.PictureUri,
+        //            Caption = obj.Caption,
+        //            EntryDate = obj.EntryDate
+        //        });
+        //    }
 
-            //var pictures = _dbContext.Pictures.ToList();
+        //    //var pictures = _dbContext.Pictures.ToList();
 
-            //int index = 0;
-            //foreach (var pic in pictures)
-            //{
-            //    pic.EntryDate = deserializedObj[index].EntryDate;
-            //    EntityEntry dbEntityEntry = _dbContext.Entry(pic);
-            //    dbEntityEntry.State = EntityState.Modified;
-            //    index++;
-            //}
+        //    //int index = 0;
+        //    //foreach (var pic in pictures)
+        //    //{
+        //    //    pic.EntryDate = deserializedObj[index].EntryDate;
+        //    //    EntityEntry dbEntityEntry = _dbContext.Entry(pic);
+        //    //    dbEntityEntry.State = EntityState.Modified;
+        //    //    index++;
+        //    //}
 
-            _dbContext.SaveChanges();
-        }
+        //    _dbContext.SaveChanges();
+        //}
 
-        public void SeedOrphanPictures()
-        {
-            var orphans = _dbContext.Orphans.ToList();
-            var pictures = _dbContext.Pictures.ToList();
+        //public void SeedOrphanPictures()
+        //{
+        //    var orphans = _dbContext.Orphans.ToList();
+        //    var pictures = _dbContext.Pictures.ToList();
 
-            Orphan orphan;
-            foreach (var picture in pictures)
-            {
-                orphan = orphans[Random.Next(orphans.Count)];
-                _dbContext.OrphanPictures.Add(new OrphanPicture
-                {
-                    OrphanID = orphan.OrphanID,
-                    PictureID = picture.PictureID,
-                    EntryDate = GetRandomDate(2019)
-                });
-            }
+        //    Orphan orphan;
+        //    foreach (var picture in pictures)
+        //    {
+        //        orphan = orphans[Random.Next(orphans.Count)];
+        //        _dbContext.OrphanPictures.Add(new OrphanPicture
+        //        {
+        //            OrphanID = orphan.OrphanID,
+        //            ProfilePictureID = picture.ProfilePictureID,
+        //            EntryDate = GetRandomDate(2019)
+        //        });
+        //    }
 
-            _dbContext.SaveChanges();
-        }
+        //    _dbContext.SaveChanges();
+        //}
 
         public void SeedOrphanSponsors()
         {
@@ -189,6 +218,21 @@ namespace LCMSMSWebApi.Data
                     SponsorID = sponsor.SponsorID,
                     EntryDate = GetRandomDate(2019)
                 });
+            }
+
+            _dbContext.SaveChanges();
+        }
+
+        public void SeedAcademicsForeignKey()
+        {
+            var academics = _dbContext.Academics.ToList();
+            var orphans = _dbContext.Orphans.ToList();
+
+            int counter = 0;
+            foreach (var academic in academics)
+            {
+                academic.OrphanID = orphans[counter].OrphanID;
+                counter++;
             }
 
             _dbContext.SaveChanges();

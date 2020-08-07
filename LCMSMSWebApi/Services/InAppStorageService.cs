@@ -12,6 +12,7 @@ namespace LCMSMSWebApi.Services
     {
         private readonly IWebHostEnvironment env;
         private readonly IHttpContextAccessor httpContextAccessor;
+        public string BaseUri { get; private set; }
 
         public InAppStorageService(IWebHostEnvironment env,
             IHttpContextAccessor httpContextAccessor
@@ -19,12 +20,13 @@ namespace LCMSMSWebApi.Services
         {
             this.env = env;
             this.httpContextAccessor = httpContextAccessor;
+            BaseUri = env.WebRootPath;
         }
 
         public Task DeleteFile(string fileRoute, string containerName)
         {
             var fileName = Path.GetFileName(fileRoute);
-            string fileDirectory = Path.Combine(env.WebRootPath, containerName, fileName);
+            string fileDirectory = Path.Combine(BaseUri, containerName, fileName);
             if (File.Exists(fileDirectory))
             {
                 File.Delete(fileDirectory);
@@ -44,10 +46,11 @@ namespace LCMSMSWebApi.Services
             return await SaveFile(content, extension, containerName, contentType);
         }
 
-        public async Task<string> SaveFile(byte[] content, string extension, string containerName, string contentType)
+        public async Task<string> SaveFile(byte[] content, string extension, string containerName, string contentType, string fileName=null)
         {
-            var fileName = $"{Guid.NewGuid()}{extension}";
-            string folder = Path.Combine(env.WebRootPath, containerName);
+            fileName ??= $"{Guid.NewGuid()}{extension}";
+            
+            string folder = Path.Combine(BaseUri, containerName);
 
             if (!Directory.Exists(folder))
             {
@@ -60,6 +63,16 @@ namespace LCMSMSWebApi.Services
             var currentUrl = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}";
             var pathForDatabase = Path.Combine(currentUrl, containerName, fileName).Replace("\\", "/");
             return pathForDatabase;
+        }
+
+        public string GetUri(string fileName, string containerName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<byte[]> DownloadAsync(string fileName, string containerName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

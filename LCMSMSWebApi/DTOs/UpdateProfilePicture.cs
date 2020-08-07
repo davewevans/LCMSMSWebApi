@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+using LCMSMSWebApi.Validations;
+using Microsoft.AspNetCore.Http;
 
-namespace LCMSMSWebApi.Models
+namespace LCMSMSWebApi.DTOs
 {
-    public class Picture
+    public class UpdateProfilePicture
     {
-        public int PictureID { get; set; }
         public string PictureFileName { get; set; }
+
+        public string BaseUri { get; set; }
+
         public string Caption { get; set; }
-        public DateTime EntryDate { get; set; }
+
         public int OrphanID { get; set; }
-        public Orphan Orphan { get; set; } 
     }
 }

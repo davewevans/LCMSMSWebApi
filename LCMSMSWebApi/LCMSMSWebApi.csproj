@@ -6,14 +6,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\FooController.cs" />
+    <Compile Remove="Data\PaulDbContext.cs" />
     <Compile Remove="enums\Gender.cs" />
     <Compile Remove="enums\LCMStatus.cs" />
+    <Compile Remove="Migrations\20200729205820_RemovedOrphanPictures.cs" />
+    <Compile Remove="Migrations\20200729205820_RemovedOrphanPictures.Designer.cs" />
+    <Compile Remove="Migrations\20200729210523_RemovedOrphanPicturesAgain.cs" />
+    <Compile Remove="Migrations\20200729210523_RemovedOrphanPicturesAgain.Designer.cs" />
+    <Compile Remove="Migrations\20200729210957_RemovedOrphanPictures3.cs" />
+    <Compile Remove="Migrations\20200729210957_RemovedOrphanPictures3.Designer.cs" />
+    <Compile Remove="Migrations\20200729211627_RemovedOrphanPictures4.cs" />
+    <Compile Remove="Migrations\20200729211627_RemovedOrphanPictures4.Designer.cs" />
+    <Compile Remove="Migrations\20200729211802_RemovedOrphanPictures5.cs" />
+    <Compile Remove="Migrations\20200729211802_RemovedOrphanPictures5.Designer.cs" />
+    <Compile Remove="Migrations\20200729212639_removed_orphanspictures.cs" />
+    <Compile Remove="Migrations\20200729212639_removed_orphanspictures.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="enums\" />
-    <Folder Include="Validations\" />
     <Folder Include="wwwroot\DummyData\" />
+    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +40,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0003" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+    <PackageReference Include="Tinify" Version="1.5.2" />
   </ItemGroup>
 
 

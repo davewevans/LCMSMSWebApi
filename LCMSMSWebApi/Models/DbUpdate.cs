@@ -18,6 +18,18 @@ namespace LCMSMSWebApi.Models
     {
         public int DbUpdateId { get; set; }
 
+        public DateTime OrphansUpdateTimeStamp { get; set; }
+
+        public DateTime AcademicsUpdateTimeStamp { get; set; }
+
+        public DateTime GuardiansUpdateTimeStamp { get; set; }
+
+        public DateTime NarrationsUpdateTimeStamp { get; set; }
+
+        public DateTime SponsorsUpdateTimeStamp { get; set; }
+
+        public DateTime PicturesUpdateTimeStamp { get; set; }
+
         public DateTime DateTimeStamp { get; set; }
     }
 }

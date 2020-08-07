@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using LCMSMSWebApi.Data;
+using LCMSMSWebApi.DTOs;
+using LCMSMSWebApi.Models;
+using LCMSMSWebApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -13,18 +18,98 @@ namespace LCMSMSWebApi.Controllers
     public class NarrationsController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IMapper _mapper;
+        private readonly ISyncDatabasesService _syncDatabasesService;
 
-        public NarrationsController(ApplicationDbContext dbContext)
+        public NarrationsController(ApplicationDbContext dbContext, IMapper mapper, ISyncDatabasesService syncDatabasesService)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
+            _syncDatabasesService = syncDatabasesService;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            // TODO map to dto
+            var narrations = _dbContext.Narrations.ToList();
+            var narrationsDto = _mapper.Map<List<NarrationDto>>(narrations);
 
-            return Ok(_dbContext.Narrations.ToList());
+            return Ok(narrationsDto);
+        }
+
+        [HttpGet("{id}", Name = "getNarration")]
+        public async Task<ActionResult<NarrationDto>> Get(int id)
+        {
+            var narration = await _dbContext.Narrations.FirstOrDefaultAsync(x => x.NarrationID == id);
+
+            if (narration == null)
+            {
+                return NotFound();
+            }
+
+            return _mapper.Map<NarrationDto>(narration);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] NarrationDto narrationDto)
+        {
+            var narration = _mapper.Map<Narration>(narrationDto);
+
+            await _dbContext.Narrations.AddAsync(narration);
+            await _dbContext.SaveChangesAsync();
+
+            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
+
+            narrationDto = _mapper.Map<NarrationDto>(narration);
+
+            return new CreatedAtRouteResult("getNarration", new { id = narrationDto.NarrationID }, narrationDto);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Put(int id, [FromBody] NarrationUpdateDto narrationUpdateDtoDto)
+        {
+            //
+            // TODO
+            // Make sure client sends complete object.
+            // Put request can be error prone. For example,
+            // if the dto is sent by the client and a property is null,
+            // this null value will overwrite the value in the db.
+            // This may or may not be what we want!
+            //
+
+            var narration = await _dbContext.Narrations.FirstOrDefaultAsync(x => x.NarrationID == id);
+
+            if (narration == null)
+            {
+                return NotFound();
+            }
+
+            narration = _mapper.Map(narrationUpdateDtoDto, narration);
+
+            await _dbContext.SaveChangesAsync();
+
+            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var exists = await _dbContext.Narrations.AnyAsync(x => x.NarrationID == id);
+
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            var narrationToDelete = await _dbContext.Narrations.FirstOrDefaultAsync(x => x.NarrationID == id);
+            _dbContext.Narrations.Remove(narrationToDelete);
+            await _dbContext.SaveChangesAsync();
+
+            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
+
+            return NoContent();
         }
     }
 }

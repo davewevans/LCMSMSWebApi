@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class OrphanUpdateDto
+    public class OrphanEditDto
     {
         public string FirstName { get; set; } = string.Empty;
 

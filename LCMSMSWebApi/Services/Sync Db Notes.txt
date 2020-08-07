@@ -1,0 +1,26 @@
+﻿Sync local and cloud db notes
+
+* on the client side we'll run a service worker in the background
+* the service worker will run on startup and perhaps every hour or so while app is running
+* sync button on the UI somewhere so user can initiate a db sync
+
+*** if the app is running and online ***
+* after user make a change to the db, a sync will get initiated for that entity
+* when a change is made for to entity, the DbUpdates entity gets updated as well
+* There should only ever be one record in the DbUpdates table
+* The timestamp should be updated after every single db change
+* Also the timestamp for the table should be updated
+* The local db will also have this DbUpdates table
+* The service worker will implement logic to check if timestamps match.
+* For example, if the UpdatedDateTime stamp on the Cloud db is greater than its
+local counterpart, then the db needs updating
+* If the main timestamp is greater, then check each table's timestamp.
+* For example, if the OrphansUpdateTimeStamp is greater than its local counterpart,
+then that table needs to be updated.
+* The data should get updated in the background asyncronously
+
+
+*** if the app is running and offline ***
+* cache changes somehow. maybe additional tables???
+* I don't want to sync cloud db with local db, I want to sync local with cloud.
+* So I don't want to make direct changes to the local db if offline.
