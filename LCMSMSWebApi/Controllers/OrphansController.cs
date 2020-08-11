@@ -23,7 +23,7 @@ namespace LCMSMSWebApi.Controllers
         private readonly IMapper _mapper;
         private readonly ISyncDatabasesService _syncDatabasesService;
         private readonly IFileStorageService _fileStorageService;
-        private string _placeholderPic = "no_image_found_300x300.jpg";
+        private readonly string _placeholderPic = "no_image_found_300x300.jpg";
 
         public OrphansController(ApplicationDbContext dbContext, 
             IMapper mapper, 
@@ -44,6 +44,7 @@ namespace LCMSMSWebApi.Controllers
             //
             var orphans = await _dbContext.Orphans
                 .AsNoTracking()
+                .Take(10)
                 .ToListAsync();
 
             var orphansDto = _mapper.Map<List<OrphanDto>>(orphans);

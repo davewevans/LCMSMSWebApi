@@ -37,7 +37,7 @@ namespace LCMSMSWebApi.Controllers
             return Ok(narrationsDto);
         }
 
-        [HttpGet("{id}", Name = "getNarration")]
+        [HttpGet("{id}", Name = "GetNarration")]
         public async Task<ActionResult<NarrationDto>> Get(int id)
         {
             var narration = await _dbContext.Narrations.FirstOrDefaultAsync(x => x.NarrationID == id);
@@ -49,6 +49,24 @@ namespace LCMSMSWebApi.Controllers
 
             return _mapper.Map<NarrationDto>(narration);
         }
+
+        [HttpGet("orphan/{orphanId}", Name = "GetOrphanNarrations")]
+        public IActionResult GetOrphanNarrations(int orphanId)
+        {
+            var narrations = _dbContext.Narrations.Where(x => x.OrphanID == orphanId).ToList();
+            var narrationsDto = _mapper.Map<List<NarrationDto>>(narrations);
+
+            return Ok(narrationsDto);
+        }
+      
+        [HttpGet("guardian/{guardianId}", Name = "GetGuardianNarrations")]
+        public IActionResult GetGuardianNarrations(int guardianId)
+        {
+            var narrations = _dbContext.Narrations.Where(x => x.GuardianID == guardianId).ToList();
+            var narrationsDto = _mapper.Map<List<NarrationDto>>(narrations);
+
+            return Ok(narrationsDto);
+        }      
 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] NarrationDto narrationDto)
@@ -62,7 +80,7 @@ namespace LCMSMSWebApi.Controllers
 
             narrationDto = _mapper.Map<NarrationDto>(narration);
 
-            return new CreatedAtRouteResult("getNarration", new { id = narrationDto.NarrationID }, narrationDto);
+            return new CreatedAtRouteResult("GetNarration", new { id = narrationDto.NarrationID }, narrationDto);
         }
 
         [HttpPut("{id}")]

@@ -16,7 +16,7 @@ namespace LCMSMSWebApi.Data
 
         private static readonly Random Random = new Random();
 
-        private string _folderName = "DummyData";
+        private readonly string _folderName = "DummyData";
 
         public DummyDataSeeder(ApplicationDbContext dbContext, 
             IWebHostEnvironment env)
