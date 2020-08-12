@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LCMSMSWebApi.Data;
 using LCMSMSWebApi.DTOs;
+using LCMSMSWebApi.Helpers;
 using LCMSMSWebApi.Models;
 using LCMSMSWebApi.Services;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -37,15 +39,31 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters)
         {
-            //
-            // TODO pagination
-            //
-            var orphans = await _dbContext.Orphans
-                .AsNoTracking()
-                .Take(10)
-                .ToListAsync();
+
+            //var orphans = await _dbContext.Orphans
+            //    .AsNoTracking()
+            //    .OrderBy(o => o.LastName)
+            //    .Skip((orphanParameters.PageNumber - 1) * orphanParameters.PageSize)
+            //    .Take(orphanParameters.PageSize)
+            //    .ToListAsync();
+
+            var orphans = PagedList<Orphan>
+                .ToPagedList(_dbContext.Orphans.OrderBy(o => o.LastName),
+                orphanParameters.PageNumber, orphanParameters.PageSize);
+
+            var metaData = new
+            {
+                orphans.TotalCount,
+                orphans.PageSize,
+                orphans.PageNumber,
+                orphans.HasNext,
+                orphans.HasPrevious
+            };
+
+            Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
 
             var orphansDto = _mapper.Map<List<OrphanDto>>(orphans);
 
