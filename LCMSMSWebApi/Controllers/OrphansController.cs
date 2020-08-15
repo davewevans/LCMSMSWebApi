@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -39,18 +40,20 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters)
+        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters=null)
         {
-
-            //var orphans = await _dbContext.Orphans
-            //    .AsNoTracking()
-            //    .OrderBy(o => o.LastName)
-            //    .Skip((orphanParameters.PageNumber - 1) * orphanParameters.PageSize)
-            //    .Take(orphanParameters.PageSize)
-            //    .ToListAsync();
+            if (orphanParameters == null)
+            {
+                orphanParameters = new OrphanParameters();
+            }
 
             var orphans = PagedList<Orphan>
-                .ToPagedList(_dbContext.Orphans.OrderBy(o => o.LastName),
+                .ToPagedList(_dbContext.Orphans
+                .Include("Pictures")
+                .Include("Guardian")
+                .Include("Narrations")
+                .Include("Academics")
+                .OrderBy(o => o.LastName),
                 orphanParameters.PageNumber, orphanParameters.PageSize);
 
             var metaData = new
@@ -65,7 +68,7 @@ namespace LCMSMSWebApi.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
 
-            var orphansDto = _mapper.Map<List<OrphanDto>>(orphans);
+            var orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
 
             orphansDto.ForEach(orphan =>
             {                
@@ -79,7 +82,9 @@ namespace LCMSMSWebApi.Controllers
                     BaseUri = _fileStorageService.BaseUri,
                     SetAsProfilePic = true,
                     Caption = pic.Caption
-                };  
+                };
+
+                orphan.ProfilePicUri = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
             });            
             return Ok(orphansDto);
         }
