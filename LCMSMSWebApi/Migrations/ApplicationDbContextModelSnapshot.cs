@@ -199,6 +199,24 @@ namespace LCMSMSWebApi.Migrations
                     b.ToTable("Orphans");
                 });
 
+            modelBuilder.Entity("LCMSMSWebApi.Models.OrphanProfilePic", b =>
+                {
+                    b.Property<int>("OrphanProfilePicID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("OrphanID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PicName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OrphanProfilePicID");
+
+                    b.ToTable("OrphanProfilePics");
+                });
+
             modelBuilder.Entity("LCMSMSWebApi.Models.OrphanSponsor", b =>
                 {
                     b.Property<int>("OrphanID")

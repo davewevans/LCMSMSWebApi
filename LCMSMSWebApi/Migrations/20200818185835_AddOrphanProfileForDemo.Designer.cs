@@ -4,14 +4,16 @@ using LCMSMSWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace LCMSMSWebApi.Migrations.AzureDevDb
+namespace LCMSMSWebApi.Migrations
 {
-    [DbContext(typeof(AzureDevDbContext))]
-    partial class AzureDevDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20200818185835_AddOrphanProfileForDemo")]
+    partial class AddOrphanProfileForDemo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,7 +211,7 @@ namespace LCMSMSWebApi.Migrations.AzureDevDb
                     b.Property<int>("OrphanID")
                         .HasColumnType("int");
 
-                    b.Property<string>("PicUrl")
+                    b.Property<string>("PicName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("OrphanProfilePicID");

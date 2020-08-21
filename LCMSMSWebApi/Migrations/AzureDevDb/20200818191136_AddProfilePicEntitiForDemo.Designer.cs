@@ -4,14 +4,16 @@ using LCMSMSWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LCMSMSWebApi.Migrations.AzureDevDb
 {
     [DbContext(typeof(AzureDevDbContext))]
-    partial class AzureDevDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200818191136_AddProfilePicEntitiForDemo")]
+    partial class AddProfilePicEntitiForDemo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -197,24 +199,6 @@ namespace LCMSMSWebApi.Migrations.AzureDevDb
                     b.HasIndex("GuardianID");
 
                     b.ToTable("Orphans");
-                });
-
-            modelBuilder.Entity("LCMSMSWebApi.Models.OrphanProfilePic", b =>
-                {
-                    b.Property<int>("OrphanProfilePicID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("OrphanID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PicUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("OrphanProfilePicID");
-
-                    b.ToTable("OrphanProfilePics");
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.OrphanSponsor", b =>

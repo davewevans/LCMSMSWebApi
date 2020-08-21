@@ -28,8 +28,8 @@ namespace LCMSMSWebApi.Controllers
         private readonly IFileStorageService _fileStorageService;
         private readonly string _placeholderPic = "no_image_found_300x300.jpg";
 
-        public OrphansController(ApplicationDbContext dbContext, 
-            IMapper mapper, 
+        public OrphansController(ApplicationDbContext dbContext,
+            IMapper mapper,
             ISyncDatabasesService syncDatabasesService,
             IFileStorageService fileStorageService)
         {
@@ -39,42 +39,27 @@ namespace LCMSMSWebApi.Controllers
             _fileStorageService = fileStorageService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters=null)
+        [HttpGet("getAllOrphans")]
+        public async Task<IActionResult> GetAll()
         {
-            if (orphanParameters == null)
-            {
-                orphanParameters = new OrphanParameters();
-            }
+            List<OrphanDetailsDto> orphansDto = new List<OrphanDetailsDto>();
 
-            var orphans = PagedList<Orphan>
-                .ToPagedList(_dbContext.Orphans
-                .Include("Pictures")
-                .Include("Guardian")
-                .Include("Narrations")
-                .Include("Academics")
-                .OrderBy(o => o.LastName),
-                orphanParameters.PageNumber, orphanParameters.PageSize);
+            var orphans = await _dbContext.Orphans
+               .AsNoTracking()
+               .Include("Pictures")
+               .Include("Guardian")
+               .Include("Narrations")
+               .Include("Academics")
+               .OrderBy(o => o.LastName)
+               .ToListAsync();
 
-            var metaData = new
-            {
-                orphans.TotalCount,
-                orphans.PageSize,
-                orphans.PageNumber,
-                orphans.HasNext,
-                orphans.HasPrevious
-            };
-
-            Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
-
-            var orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
+            orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
 
             orphansDto.ForEach(orphan =>
-            {                
+            {
                 var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
                 orphan.ProfilePic = pic == null ?
-                new PictureDto { BaseUri = _fileStorageService.BaseUri, PictureFileName = _placeholderPic } 
+                new PictureDto { BaseUri = _fileStorageService.BaseUri, PictureFileName = _placeholderPic }
                 : new PictureDto
                 {
                     PictureID = pic.PictureID,
@@ -85,7 +70,55 @@ namespace LCMSMSWebApi.Controllers
                 };
 
                 orphan.ProfilePicUri = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
-            });            
+            });
+            return Ok(orphansDto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters)
+        {
+            List<OrphanDetailsDto> orphansDto = new List<OrphanDetailsDto>();
+
+            var orphans = await PagedList<Orphan>
+                .ToPagedListAsync(_dbContext.Orphans
+                .AsNoTracking()
+                .Include("Pictures")
+                .Include("Guardian")
+                .Include("Narrations")
+                .Include("Academics")
+                .OrderBy(o => o.LastName),
+                orphanParameters.PageNumber, orphanParameters.PageSize);
+
+                var metaData = new
+                {
+                    orphans.TotalCount,
+                    orphans.PageSize,
+                    orphans.PageNumber,
+                    orphans.HasNext,
+                    orphans.HasPrevious
+                };
+
+            Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
+
+            orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
+
+            orphansDto.ForEach(orphan =>
+            {
+                var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
+                orphan.ProfilePic = pic == null ?
+                new PictureDto { BaseUri = _fileStorageService.BaseUri, PictureFileName = _placeholderPic }
+                : new PictureDto
+                {
+                    PictureID = pic.PictureID,
+                    PictureFileName = pic.PictureFileName,
+                    BaseUri = _fileStorageService.BaseUri,
+                    SetAsProfilePic = true,
+                    Caption = pic.Caption
+                };
+
+                orphan.ProfilePicUri = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
+            });
             return Ok(orphansDto);
         }
 
@@ -149,7 +182,7 @@ namespace LCMSMSWebApi.Controllers
 
             orphanDto = _mapper.Map<OrphanDto>(orphan);
 
-            return new CreatedAtRouteResult("getOrphan", new {id = orphanDto.OrphanID }, orphanDto);
+            return new CreatedAtRouteResult("getOrphan", new { id = orphanDto.OrphanID }, orphanDto);
         }
 
         [HttpPut("{id}")]
