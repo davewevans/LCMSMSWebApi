@@ -32,10 +32,10 @@ namespace LCMSMSWebApi.Services
             {
                 var extension = Path.GetExtension(imageFile.FileName);
                 var encoder = GetEncoder(extension?.ToLower());
-
+                var decoder = GetDecoder(extension?.ToLower());
                 using var stream = imageFile.OpenReadStream();
                 using var output = new MemoryStream();
-                using var image = Image.Load(stream);
+                using var image = Image.Load(stream, decoder);
                 if (image.Width <= maxWidth) return null;
                 var divisor = image.Width / maxWidth;
                 var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
@@ -85,11 +85,45 @@ namespace LCMSMSWebApi.Services
                         encoder = new GifEncoder();
                         break;
                     default:
+                        encoder = new PngEncoder();
                         break;
                 }
             }
 
             return encoder;
+        }
+
+        private static IImageDecoder GetDecoder(string extension)
+        {
+            IImageDecoder decoder = null;
+
+            extension = extension.Replace(".", "");
+
+            var isSupported = Regex.IsMatch(extension, "gif|png|jpe?g", RegexOptions.IgnoreCase);
+
+            if (isSupported)
+            {
+                switch (extension)
+                {
+                    case "png":
+                        decoder = new PngDecoder();
+                        break;
+                    case "jpg":
+                        decoder = new JpegDecoder();
+                        break;
+                    case "jpeg":
+                        decoder = new JpegDecoder();
+                        break;
+                    case "gif":
+                        decoder = new GifDecoder();
+                        break;
+                    default:
+                        decoder = new PngDecoder();
+                        break;
+                }
+            }
+
+            return decoder;
         }
 
         public void ResizeForProfile(int width)

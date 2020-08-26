@@ -85,11 +85,11 @@ namespace LCMSMSWebApi.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromForm] IFormFile image)
         {
+            if (image == null) return BadRequest("No image file found.");
+
             string dataStr = Request.Form[""].ToString();
             var picCreation = Newtonsoft.Json.JsonConvert.DeserializeObject<PictureCreationDto>(dataStr);
-            picCreation.Picture = image;
-
-            if (picCreation.Picture == null) return NotFound();
+            picCreation.Picture = image;            
 
             int maxSize = picCreation.SetAsProfilePic ? ProfilePicMaxWidth : ImageSizeMaxWidth;
 

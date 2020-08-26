@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using LCMSMSWebApi.Data;
@@ -22,6 +23,19 @@ namespace LCMSMSWebApi.Controllers
         public DashboardController(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        [HttpGet("totalCounts")]
+        public async Task<IActionResult> GetTotalCounts()
+        {
+            var totalCounts = new TotalCountsDto
+            {
+                TotalOrphans = await _dbContext.Orphans.CountAsync(),
+                TotalGuardians = await _dbContext.Guardians.CountAsync(),
+                TotalSponsors = await _dbContext.Sponsors.CountAsync()
+            };
+
+            return Ok(totalCounts);
         }
 
         [HttpGet("orphanStats")]
@@ -53,7 +67,6 @@ namespace LCMSMSWebApi.Controllers
 
             narrationStats.OrphanLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault().EntryDate;
             narrationStats.GuardianLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault().EntryDate;
-
 
             return Ok(narrationStats);
         }

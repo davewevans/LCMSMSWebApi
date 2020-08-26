@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace LCMSMSWebApi.DTOs
 {
     public class NarrationStatisticsDto
-    {        
+    {    
         public int TotalNarrationCount { get; set; }
 
         public int OrphanNarrationCount { get; set; }
