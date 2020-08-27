@@ -32,10 +32,9 @@ namespace LCMSMSWebApi.Services
             {
                 var extension = Path.GetExtension(imageFile.FileName);
                 var encoder = GetEncoder(extension?.ToLower());
-                var decoder = GetDecoder(extension?.ToLower());
                 using var stream = imageFile.OpenReadStream();
                 using var output = new MemoryStream();
-                using var image = Image.Load(stream, decoder);
+                using var image = Image.Load(stream);
                 if (image.Width <= maxWidth) return null;
                 var divisor = image.Width / maxWidth;
                 var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));

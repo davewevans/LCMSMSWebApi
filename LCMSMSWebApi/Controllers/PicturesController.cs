@@ -83,13 +83,22 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromForm] IFormFile image)
+        public async Task<ActionResult> Post([FromForm] IFormFile file)
         {
-            if (image == null) return BadRequest("No image file found.");
+            if (file == null || file.Length == 0) return BadRequest("No image file found.");
 
-            string dataStr = Request.Form[""].ToString();
-            var picCreation = Newtonsoft.Json.JsonConvert.DeserializeObject<PictureCreationDto>(dataStr);
-            picCreation.Picture = image;            
+            PictureCreationDto picCreation;
+            try
+            {
+                string dataStr = Request.Form[""].ToString();
+                picCreation = Newtonsoft.Json.JsonConvert.DeserializeObject<PictureCreationDto>(dataStr);
+                picCreation.Picture = file; 
+            }
+            catch (Exception ex)
+            {
+                // TODO log exception
+                return BadRequest("Not a valid request.");
+            }       
 
             int maxSize = picCreation.SetAsProfilePic ? ProfilePicMaxWidth : ImageSizeMaxWidth;
 
@@ -112,21 +121,30 @@ namespace LCMSMSWebApi.Controllers
                 OrphanID = picCreation.OrphanID
             };
 
-            await _context.Pictures.AddAsync(newPic);
-            await _context.SaveChangesAsync();
-
-            if (picCreation.SetAsProfilePic)
+            try
             {
-                var orphan = await _context.Orphans.SingleOrDefaultAsync(x => x.OrphanID == picCreation.OrphanID);
-                orphan.ProfilePictureID = newPic.PictureID;
+                await _context.Pictures.AddAsync(newPic);
+                await _context.SaveChangesAsync();
+
+                if (picCreation.SetAsProfilePic)
+                {
+                    var orphan = await _context.Orphans.SingleOrDefaultAsync(x => x.OrphanID == picCreation.OrphanID);
+                    orphan.ProfilePictureID = newPic.PictureID;
+                }
+
+                await _context.SaveChangesAsync();
+                var pictureDto = _mapper.Map<PictureDto>(newPic);
+                pictureDto.BaseUri = _fileStorageService.BaseUri;
+                pictureDto.SetAsProfilePic = picCreation.SetAsProfilePic;
+
+                return Ok(picUri);
             }
-
-            await _context.SaveChangesAsync();
-            var pictureDto = _mapper.Map<PictureDto>(newPic);
-            pictureDto.BaseUri = _fileStorageService.BaseUri;
-            pictureDto.SetAsProfilePic = picCreation.SetAsProfilePic;
-
-            return Ok(picUri);
+            catch (Exception ex)
+            {
+                // TODO log exception
+                return BadRequest("Not a valid request.");
+            }
+          
         }
 
 
