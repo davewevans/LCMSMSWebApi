@@ -69,7 +69,7 @@ namespace LCMSMSWebApi.Controllers
                     Caption = pic.Caption
                 };
 
-                orphan.ProfilePicUri = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
+                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
             });
             return Ok(orphansDto);
         }
@@ -117,7 +117,7 @@ namespace LCMSMSWebApi.Controllers
                     Caption = pic.Caption
                 };
 
-                orphan.ProfilePicUri = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
+                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
             });
             return Ok(orphansDto);
         }
@@ -150,10 +150,12 @@ namespace LCMSMSWebApi.Controllers
                 {
                     BaseUri = _fileStorageService.BaseUri,
                     PictureFileName = _placeholderPic
-                };
+                };                
             }
 
-            // Sets the base uri for each pic
+            orphanDto.ProfilePicUrl = Path.Combine(_fileStorageService.BaseUri, orphanDto.ProfilePic.PictureFileName);
+
+            // Sets the base url for each pic
             orphanDto.Pictures.ForEach(p =>
             {
                 p.BaseUri = _fileStorageService.BaseUri;

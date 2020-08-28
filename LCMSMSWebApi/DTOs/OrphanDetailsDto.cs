@@ -32,7 +32,7 @@ namespace LCMSMSWebApi.DTOs
 
         public int? ProfilePictureID { get; set; }
 
-        public string ProfilePicUri { get; set; }
+        public string ProfilePicUrl { get; set; }
 
         public PictureDto ProfilePic { get; set; }
 
