@@ -50,6 +50,15 @@ namespace LCMSMSWebApi.Controllers
             return _mapper.Map<AcademicDto>(academic);
         }
 
+        [HttpGet("orphan/{orphanId}", Name = "GetOrphanAcademics")]
+        public IActionResult GetOrphanAcademics(int orphanId)
+        {
+            var academics = _dbContext.Academics.Where(x => x.OrphanID == orphanId).ToList();
+            var academicsDto = _mapper.Map<List<AcademicDto>>(academics);
+
+            return Ok(academicsDto);
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] AcademicDto academicDto)
         {
@@ -63,6 +72,24 @@ namespace LCMSMSWebApi.Controllers
             academicDto = _mapper.Map<AcademicDto>(academic);
 
             return new CreatedAtRouteResult("getAcademic", new { id = academicDto.AcademicID }, academicDto);
+        }
+
+        [HttpPost("postinlineedit")]
+        public async Task<ActionResult> PostInlineEdit([FromBody] AcademicDto academicDto)
+        {
+            var academic = _dbContext.Academics.FirstOrDefault(a => a.AcademicID == academicDto.AcademicID);
+
+            if (academic == null) return BadRequest("No Academic record found.");
+
+            academic.Grade = academicDto.Grade;
+            academic.KCPE = academicDto.KCPE;
+            academic.KCSE = academicDto.KCSE;
+            academic.School = academic.School;
+            
+            await _dbContext.SaveChangesAsync();
+            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();          
+
+            return NoContent();
         }
 
         [HttpPut("{id}")]
