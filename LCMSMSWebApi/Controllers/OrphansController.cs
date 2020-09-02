@@ -122,10 +122,10 @@ namespace LCMSMSWebApi.Controllers
                 orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
             });
             return Ok(orphansDto);
-        }
+        }       
 
         [HttpGet("{id}", Name = "getOrphan")]
-        public async Task<ActionResult<OrphanDetailsDto>> Get(int id)
+        public async Task<ActionResult<OrphanDetailsDto>> GetOrphan(int id)
         {
             var orphan = await _dbContext.Orphans
                 .AsNoTracking()
@@ -174,7 +174,7 @@ namespace LCMSMSWebApi.Controllers
             return orphanDto;
         }
 
-        [HttpGet("{id}", Name = "getOrphanGuardian")]
+        [HttpGet("getOrphanGuardian/{id}")]
         public async Task<ActionResult<Guardian>> GetOrphanGuardian(int id)
         {
             var orphan = await _dbContext.Orphans.FirstOrDefaultAsync(o => o.OrphanID == id);
@@ -186,7 +186,7 @@ namespace LCMSMSWebApi.Controllers
             return guardian;
         }
 
-        [HttpGet("{id}", Name = "getOrphanSpoonsors")]
+        [HttpGet("getOrphanSponsors/{id}")]
         public async Task<ActionResult<List<SponsorDto>>> GetOrphanSponsors(int id)
         {
             var orphan = await _dbContext.Orphans
