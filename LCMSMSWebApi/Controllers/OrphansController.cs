@@ -174,6 +174,34 @@ namespace LCMSMSWebApi.Controllers
             return orphanDto;
         }
 
+        [HttpGet("{id}", Name = "getOrphanGuardian")]
+        public async Task<ActionResult<Guardian>> GetOrphanGuardian(int id)
+        {
+            var orphan = await _dbContext.Orphans.FirstOrDefaultAsync(o => o.OrphanID == id);
+            if (orphan == null) return BadRequest();
+            if (orphan.GuardianID == null) return NotFound();
+
+            var guardian = await _dbContext.Guardians.FirstOrDefaultAsync(g => g.GuardianID == orphan.GuardianID);
+            if (guardian == null) return NotFound();
+            return guardian;
+        }
+
+        [HttpGet("{id}", Name = "getOrphanSpoonsors")]
+        public async Task<ActionResult<List<SponsorDto>>> GetOrphanSponsors(int id)
+        {
+            var orphan = await _dbContext.Orphans
+                .FirstOrDefaultAsync(o => o.OrphanID == id);
+
+            if (orphan == null) return BadRequest();
+
+            // Include sponsors
+            var sponsors = from os in _dbContext.OrphanSponsors
+                           where os.OrphanID == orphan.OrphanID
+                           select os.Sponsor;
+
+            return _mapper.Map<List<SponsorDto>>(sponsors.ToList());
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] OrphanDto orphanDto)
         {
