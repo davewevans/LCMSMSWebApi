@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.JsonPatch;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -213,6 +215,21 @@ namespace LCMSMSWebApi.Controllers
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
 
             return NoContent();
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<Orphan> patchOrphan)
+        {
+            var recordToPatch = await _dbContext.Orphans.FirstOrDefaultAsync(o => o.OrphanID == id);
+            if (recordToPatch == null)
+            {
+                return NotFound("Record not found.");
+            }
+            
+            patchOrphan.ApplyTo(recordToPatch, ModelState);
+            await _dbContext.SaveChangesAsync();
+            return Ok(recordToPatch);
+
         }
 
         [HttpDelete("{id}")]

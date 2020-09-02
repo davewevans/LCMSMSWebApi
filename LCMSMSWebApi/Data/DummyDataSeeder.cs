@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.Data
 {
@@ -120,7 +121,7 @@ namespace LCMSMSWebApi.Data
             _dbContext.SaveChanges();
         }
 
-        public void SeedNarrations()
+        public async Task SeedNarrations()
         {
             string fileName = "narrations_mock_data.json";
             string folderPath = Path.Combine(_env.WebRootPath, _folderName);
@@ -131,21 +132,22 @@ namespace LCMSMSWebApi.Data
 
             var deserializedObj = JsonConvert.DeserializeObject<List<NarrationDto>>(dummyData);
 
-            //var orphans = _dbContext.Orphans.ToList();
-            var guardians = _dbContext.Guardians.ToList();
+            var orphans = _dbContext.Orphans.ToList();
+            //var guardians = _dbContext.Guardians.ToList();
 
             foreach (var obj in deserializedObj)
             {
-                _dbContext.Narrations.Add(new Narration()
+                await _dbContext.Narrations.AddAsync(new Narration()
                 {
                     Subject = obj.Subject,
                     Note = obj.Note,
                     EntryDate = obj.EntryDate,
-                    GuardianID = guardians[Random.Next(guardians.Count)].GuardianID
+                    // GuardianID = guardians[Random.Next(guardians.Count)].GuardianID
+                    OrphanID = orphans[Random.Next(orphans.Count())].OrphanID
                 });
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         //public void SeedPictures()
