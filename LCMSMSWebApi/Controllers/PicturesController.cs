@@ -118,7 +118,7 @@ namespace LCMSMSWebApi.Controllers
                 PictureFileName = Path.GetFileName(picUri),
                 Caption = picCreation.Caption,
                 EntryDate = DateTime.Now,
-                OrphanID = picCreation.OrphanID
+                OrphanID = picCreation.OrphanID,                
             };
 
             try

@@ -144,7 +144,7 @@ namespace LCMSMSWebApi.Controllers
 
             // Assign the profile pic
             orphanDto.ProfilePic = orphanDto.Pictures
-                .SingleOrDefault(p => p.PictureID == orphanDto.ProfilePictureID);
+                .FirstOrDefault(p => p.PictureID == orphanDto.ProfilePictureID);
 
             if (orphanDto.ProfilePic == null)
             {
@@ -200,6 +200,28 @@ namespace LCMSMSWebApi.Controllers
                            select os.Sponsor;
 
             return _mapper.Map<List<SponsorDto>>(sponsors.ToList());
+        }
+
+        [HttpGet("getOrphanPictures/{id}")]
+        public async Task<ActionResult<List<PictureDto>>> GetOrphanPictures(int id)
+        {
+            var orphan = await _dbContext.Orphans
+                .FirstOrDefaultAsync(o => o.OrphanID == id);
+
+            if (orphan == null) return BadRequest();
+
+            var pics = _dbContext.Pictures.Where(x => x.OrphanID == id).ToList();
+
+            var picDtos = _mapper.Map<List<PictureDto>>(pics);
+
+            // Sets the base url for each pic
+            picDtos.ForEach(p =>
+            {
+                p.BaseUri = _fileStorageService.BaseUri;
+                p.SetAsProfilePic = p.PictureID == orphan.ProfilePictureID;
+            });
+
+            return Ok(picDtos);
         }
 
         [HttpPost]

@@ -32,7 +32,7 @@ namespace LCMSMSWebApi.Controllers
         public async Task<IActionResult> Get()
         {
 
-            var seeder = new DummyDataSeeder(_dbContext, _env);
+            // var seeder = new DummyDataSeeder(_dbContext, _env);
             //seeder.SeedAllDummyData();
 
             // seeder.SeedGuardians();
@@ -46,6 +46,14 @@ namespace LCMSMSWebApi.Controllers
             // BuildLocalOrphanDB();
 
             // BuildAzureOrphanDB();
+
+
+            //var orphanPics = _dbContext.Pictures;
+            //foreach (var pic in orphanPics)
+            //{
+            //    _dbContext.Pictures.Remove(pic);
+            //}
+            //await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
