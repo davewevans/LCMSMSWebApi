@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
+using LCMSMSWebApi.Models;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -15,22 +16,32 @@ namespace LCMSMSWebApi.Controllers
     public class SeedDbController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly AzureDevDbContext _azureDevDbContext;
-        // private readonly PaulDbContext _paulDbContext;
+        private readonly PaulDbContext _paulDbContext;
+        private readonly TempDbContext _tempDbContext;
+
         private readonly IWebHostEnvironment _env;
 
+       
+
         //private PaulDbContext _paulDbContext;
-        public SeedDbController(ApplicationDbContext dbContext, AzureDevDbContext azureDevDbContext, IWebHostEnvironment env)
+        public SeedDbController(ApplicationDbContext dbContext, 
+            TempDbContext tempDbContext, 
+            PaulDbContext paulDbContext, 
+            IWebHostEnvironment env)
         {
             _dbContext = dbContext;
-            _azureDevDbContext = azureDevDbContext;
-           // _paulDbContext = paulDbContext;
+            _tempDbContext = tempDbContext;
+            _paulDbContext = paulDbContext;
+
+            // _paulDbContext = paulDbContext;
             _env = env;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+
+            // PopulateRealData();
 
             // var seeder = new DummyDataSeeder(_dbContext, _env);
             //seeder.SeedAllDummyData();
@@ -58,6 +69,76 @@ namespace LCMSMSWebApi.Controllers
             return Ok();
         }
 
+        private void PopulateRealData()
+        {
+            var orphans = _paulDbContext.Orphans.ToList();
+            var academics = _paulDbContext.Academics.ToList();
+            var narrations = _paulDbContext.Narrations.ToList();
+            var guardians = _paulDbContext.Guardians.ToList();
+
+            foreach (var orphan in orphans)
+            {
+                _tempDbContext.Orphans.Add(new Orphan
+                {
+                    OrphanID = orphan.OrphanID,
+                    FirstName = orphan.FirstName,
+                    MiddleName = orphan.MiddleName,
+                    LastName = orphan.LastName,
+                    Gender = orphan.Gender,
+                    LCMStatus = orphan.LCMStatus,
+                    ProfileNumber = orphan.ProfileNumber,
+                    DateOfBirth = orphan.DateOfBirth,
+                    EntryDate = orphan.EntryDate,
+                    GuardianID = orphan.GuardianID
+                });
+            }
+            foreach (var academic in academics)
+            {
+                _tempDbContext.Academics.Add(new Academic {
+                    Grade = academic.Grade,
+                    KCPE = academic.KCPE,
+                    KCSE = academic.KCSE,
+                    School = academic.School,
+                    EntryDate = academic.EntryDate,
+                    OrphanID = academic.OrphanID
+                });
+            }
+            foreach (var narration in narrations)
+            {
+                if (narration.OrphanID == null) continue;
+
+                _tempDbContext.Narrations.Add(new Narration { 
+                    Subject = narration.Subject,
+                    Note = narration.Note,
+                    EntryDate = narration.EntryDate,
+                    OrphanID = narration.OrphanID,               
+                });
+            }
+
+            foreach (var guardian in guardians)
+            {
+                _tempDbContext.Guardians.Add(new Guardian
+                {
+                    FirstName = guardian.FirstName,
+                    LastName = guardian.LastName,
+                    EntryDate = guardian.EntryDate,
+                    Location = guardian.Location,
+                });
+            }
+
+            try
+            {
+                _tempDbContext.Database.OpenConnection();
+                _tempDbContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Orphans ON");
+                _tempDbContext.SaveChanges();
+                _tempDbContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Orphans OFF");
+            }
+            finally
+            {
+                _tempDbContext.Database.CloseConnection();
+            }
+           
+        }
 
         public void BuildAzureOrphanDB()
         {
@@ -70,7 +151,7 @@ namespace LCMSMSWebApi.Controllers
             // Academics
 
             var inContext = _dbContext;
-            var outContext = _azureDevDbContext;
+            var outContext = _dbContext;
 
             var inRecs = (from r in inContext.Academics select r);
             foreach (var r in inRecs)

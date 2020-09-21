@@ -15,8 +15,10 @@ namespace LCMSMSWebApi.Data
                 
         }
 
-        public DbSet<Orphan> Orphans { get; set; }
+        public DbSet<OrpansRealData> Orphans { get; set; }
         public DbSet<Academic> Academics { get; set; }
         public DbSet<Narration> Narrations { get; set; }
+
+        public DbSet<GuardianRealData> Guardians { get; set; }
     }
 }

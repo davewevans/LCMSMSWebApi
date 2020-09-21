@@ -77,7 +77,7 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters)
+        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters=null)
         {
             List<OrphanDetailsDto> orphansDto = new List<OrphanDetailsDto>();
 

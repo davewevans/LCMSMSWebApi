@@ -1,13 +1,17 @@
 ﻿using LCMSMSWebApi.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class TempDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public TempDbContext(DbContextOptions<TempDbContext> options) : base(options)
         {
-                
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -17,7 +21,6 @@ namespace LCMSMSWebApi.Data
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<UserModel> Users { get; set; }
         public DbSet<Orphan> Orphans { get; set; }
         public DbSet<Academic> Academics { get; set; }
         public DbSet<Narration> Narrations { get; set; }
@@ -29,3 +32,4 @@ namespace LCMSMSWebApi.Data
         public DbSet<OrphanProfilePic> OrphanProfilePics { get; set; }
     }
 }
+

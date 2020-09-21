@@ -1,19 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using LCMSMSWebApi.Data;
 using LCMSMSWebApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -50,19 +54,45 @@ namespace LCMSMSWebApi
 
             services.AddScoped<ImageService>();
 
-            // Paul's db
-            //services.AddDbContext<PaulDbContext>(option =>
-            //    option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
+            //SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("DefaultConnection"));
+            //builder.UserID = Configuration["UserID"];
+            //builder.Password = Configuration["Password"]; 
 
-            // Local development
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            // Azure development 
-            services.AddDbContext<AzureDevDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("AzureDevConnection")));
+            //services.AddDbContext<TempDbContext>(options =>
+            //   options.UseSqlServer(Configuration.GetConnectionString("TempDefaultConnection")));
+
+            //
+            // TODO remove for productions
+            // Paul's db
+            //
+            //builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("PaulConnection"));
+            //builder.UserID = Configuration["PaulUserID"];
+            //builder.Password = Configuration["PaulPassword"];
+            //services.AddDbContext<PaulDbContext>(option =>
+            //    option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
 
             services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();
+
+            services.AddScoped<IAuthService, AuthService>();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+              .AddJwtBearer(options =>
+              {
+                  options.TokenValidationParameters = new TokenValidationParameters
+                  {
+                      ValidateIssuer = false,
+                      ValidateAudience = false,
+                      ValidateLifetime = true,
+                      ValidateIssuerSigningKey = true,
+                      ValidIssuer = Configuration["Tokens:Issuer"],
+                      ValidAudience = Configuration["Tokens:Issuer"],
+                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"])),
+                      ClockSkew = TimeSpan.Zero,
+                  };
+              });
 
             services.AddSwaggerGen(c =>
             {
@@ -92,6 +122,8 @@ namespace LCMSMSWebApi
             app.UseRouting();
 
             app.UseCors("CorsPolicy");
+
+            // app.UseAuthentication();
 
             app.UseAuthorization();
 

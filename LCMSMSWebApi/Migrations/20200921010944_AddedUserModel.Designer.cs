@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200803121819_AddOrphanSponsorsToOrphanModel")]
-    partial class AddOrphanSponsorsToOrphanModel
+    [Migration("20200921010944_AddedUserModel")]
+    partial class AddedUserModel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,6 +51,8 @@ namespace LCMSMSWebApi.Migrations
                         .HasMaxLength(255);
 
                     b.HasKey("AcademicID");
+
+                    b.HasIndex("OrphanID");
 
                     b.ToTable("Academics");
                 });
@@ -199,6 +201,24 @@ namespace LCMSMSWebApi.Migrations
                     b.ToTable("Orphans");
                 });
 
+            modelBuilder.Entity("LCMSMSWebApi.Models.OrphanProfilePic", b =>
+                {
+                    b.Property<int>("OrphanProfilePicID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("OrphanID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PicUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OrphanProfilePicID");
+
+                    b.ToTable("OrphanProfilePics");
+                });
+
             modelBuilder.Entity("LCMSMSWebApi.Models.OrphanSponsor", b =>
                 {
                     b.Property<int>("OrphanID")
@@ -288,6 +308,47 @@ namespace LCMSMSWebApi.Migrations
                     b.HasKey("SponsorID");
 
                     b.ToTable("Sponsors");
+                });
+
+            modelBuilder.Entity("LCMSMSWebApi.Models.UserModel", b =>
+                {
+                    b.Property<int>("UserID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Salt")
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("UserID");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("LCMSMSWebApi.Models.Academic", b =>
+                {
+                    b.HasOne("LCMSMSWebApi.Models.Orphan", null)
+                        .WithMany("Academics")
+                        .HasForeignKey("OrphanID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.Narration", b =>

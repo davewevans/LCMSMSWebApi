@@ -209,7 +209,7 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<int>("OrphanID")
                         .HasColumnType("int");
 
-                    b.Property<string>("PicName")
+                    b.Property<string>("PicUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("OrphanProfilePicID");
@@ -306,6 +306,38 @@ namespace LCMSMSWebApi.Migrations
                     b.HasKey("SponsorID");
 
                     b.ToTable("Sponsors");
+                });
+
+            modelBuilder.Entity("LCMSMSWebApi.Models.UserModel", b =>
+                {
+                    b.Property<int>("UserID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Salt")
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("UserID");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.Academic", b =>

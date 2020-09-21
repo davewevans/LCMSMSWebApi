@@ -10,6 +10,8 @@ namespace LCMSMSWebApi.Helpers
     {
         public AutoMapperProfiles()
         {
+            CreateMap<UserModel, UserDTO>().ReverseMap();
+
             CreateMap<Orphan, OrphanDto>().ReverseMap();
 
             CreateMap<OrphanEditDto, Orphan>();
