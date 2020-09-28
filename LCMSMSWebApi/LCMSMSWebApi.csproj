@@ -6,13 +6,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\**" />
+    <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="wwwroot\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\AuthController.cs" />
     <Compile Remove="Controllers\FooController.cs" />
+    <Compile Remove="Controllers\OidcConfigurationController.cs" />
     <Compile Remove="Controllers\SeedDbController.cs" />
     <Compile Remove="Data\AzureDevDbContext.cs" />
     <Compile Remove="Data\PaulDbContext.cs" />
     <Compile Remove="Data\TempDbContext.cs" />
     <Compile Remove="enums\Gender.cs" />
     <Compile Remove="enums\LCMStatus.cs" />
+    <Compile Remove="Helpers\IdentityProfileService.cs" />
     <Compile Remove="Migrations\20200729205820_RemovedOrphanPictures.cs" />
     <Compile Remove="Migrations\20200729205820_RemovedOrphanPictures.Designer.cs" />
     <Compile Remove="Migrations\20200729210523_RemovedOrphanPicturesAgain.cs" />
@@ -25,28 +35,31 @@
     <Compile Remove="Migrations\20200729211802_RemovedOrphanPictures5.Designer.cs" />
     <Compile Remove="Migrations\20200729212639_removed_orphanspictures.cs" />
     <Compile Remove="Migrations\20200729212639_removed_orphanspictures.Designer.cs" />
+    <Compile Remove="Services\AuthService.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="enums\" />
-    <Folder Include="wwwroot\DummyData\" />
-    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.5">
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="3.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.2.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.7.1" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0003" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
     <PackageReference Include="Tinify" Version="1.5.2" />
   </ItemGroup>

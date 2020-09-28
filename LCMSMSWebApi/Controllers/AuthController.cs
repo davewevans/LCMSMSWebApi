@@ -29,12 +29,14 @@ namespace LCMSMSWebApi.Controllers
             this.mapper = mapper;
         }
 
+        public string Foo => "";
+
         [HttpGet, Route("adduser")]
         [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
 
-            var newUser = new UserModel
+            var newUser = new ApplicationUser
             {
                 FirstName = "Guest",
                 LastName = "Guest",
@@ -47,7 +49,7 @@ namespace LCMSMSWebApi.Controllers
             var passwordHashObj = auth.HashPasswordWithSalt(password);        
 
             newUser.PasswordHash = passwordHashObj.Hash;
-            newUser.Salt = passwordHashObj.Salt;
+            // newUser.Salt = passwordHashObj.Salt;
 
             await dbContext.Users.AddAsync(newUser);
             await dbContext.SaveChangesAsync();
@@ -65,26 +67,28 @@ namespace LCMSMSWebApi.Controllers
                 return BadRequest("Invalid request.");
             }
 
-            var userFromDb = dbContext.Users.SingleOrDefault(u => u.Email == user.Email);
-            if (userFromDb == null) return StatusCode(StatusCodes.Status404NotFound);
-            var passwordHash = userFromDb.PasswordHash;
-            var salt = userFromDb.Salt;
+            //var userFromDb = dbContext.Users.SingleOrDefault(u => u.Email == user.Email);
+            //if (userFromDb == null) return StatusCode(StatusCodes.Status404NotFound);
+            //var passwordHash = userFromDb.PasswordHash;
+            //var salt = userFromDb.Salt;
 
-            var passwordHashObj = auth.HashPasswordWithSalt(user.Password, userFromDb.Salt);
+            //var passwordHashObj = auth.HashPasswordWithSalt(user.Password, userFromDb.Salt);
 
-            if (!passwordHash.Equals(passwordHashObj.Hash)) return Unauthorized();
+            //if (!passwordHash.Equals(passwordHashObj.Hash)) return Unauthorized();
 
-            //List<RoleModel> roles = (from ur in userFromDb.UsersRoles
-            //                         select dbContext.Roles.SingleOrDefault(x => x.RoleID == ur.RoleID)).ToList();
-            var claims = auth.GetClaims(userFromDb.Email);
-            string tokenString = auth.GetJwtToken(claims);          
+            ////List<RoleModel> roles = (from ur in userFromDb.UsersRoles
+            ////                         select dbContext.Roles.SingleOrDefault(x => x.RoleID == ur.RoleID)).ToList();
+            //var claims = auth.GetClaims(userFromDb.Email);
+            //string tokenString = auth.GetJwtToken(claims);          
 
         
-            await dbContext.SaveChangesAsync();
+            //await dbContext.SaveChangesAsync();
 
-            var userDto = mapper.Map<UserDTO>(userFromDb);
-            var authResponse = new AuthenticateResponseDTO(userDto, tokenString);
-            return Ok(authResponse);
+            //var userDto = mapper.Map<UserDTO>(userFromDb);
+            //var authResponse = new AuthenticateResponseDTO(userDto, tokenString);
+            //return Ok(authResponse);
+
+            return Ok();
         }
     }
 }

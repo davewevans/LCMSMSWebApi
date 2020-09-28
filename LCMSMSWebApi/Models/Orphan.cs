@@ -48,6 +48,8 @@ namespace LCMSMSWebApi.Models
 
         public List<OrphanSponsor> OrphanSponsors { get; set; }
 
+        public List<Document> Documents { get; set; }
+
     }
 }
 

@@ -2,6 +2,8 @@
 using LCMSMSWebApi.DTOs;
 using LCMSMSWebApi.Models;
 using LCMSMSWebApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,6 +13,8 @@ namespace LCMSMSWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     public class OrphansSponsorsController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;

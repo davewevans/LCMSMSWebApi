@@ -16,11 +16,15 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace LCMSMSWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     public class PicturesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

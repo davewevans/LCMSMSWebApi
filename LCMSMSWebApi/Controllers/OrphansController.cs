@@ -17,11 +17,15 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.JsonPatch;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace LCMSMSWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     public class OrphansController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
@@ -76,7 +80,7 @@ namespace LCMSMSWebApi.Controllers
             return Ok(orphansDto);
         }
 
-        [HttpGet]
+        [HttpGet]       
         public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters=null)
         {
             List<OrphanDetailsDto> orphansDto = new List<OrphanDetailsDto>();

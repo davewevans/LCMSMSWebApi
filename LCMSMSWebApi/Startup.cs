@@ -1,15 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using LCMSMSWebApi.Data;
+using LCMSMSWebApi.Helpers;
+using LCMSMSWebApi.Models;
 using LCMSMSWebApi.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +33,8 @@ namespace LCMSMSWebApi
     {
         public Startup(IConfiguration configuration)
         {
+            // Turn off Identity mapping
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             Configuration = configuration;
         }
 
@@ -61,22 +68,30 @@ namespace LCMSMSWebApi
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            //services.AddDbContext<TempDbContext>(options =>
-            //   options.UseSqlServer(Configuration.GetConnectionString("TempDefaultConnection")));
+            // IdentityServer 4 configuration
+            //services.AddDefaultIdentity<IdentityUser>(options =>
+            //{
+            //    options.SignIn.RequireConfirmedAccount = false;
+            //})
+            //    .AddRoles<IdentityRole>()
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            //
-            // TODO remove for productions
-            // Paul's db
-            //
-            //builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("PaulConnection"));
-            //builder.UserID = Configuration["PaulUserID"];
-            //builder.Password = Configuration["PaulPassword"];
-            //services.AddDbContext<PaulDbContext>(option =>
-            //    option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
+            //services.AddIdentityServer()
+            //    .AddApiAuthorization<IdentityUser, ApplicationDbContext>()
+            //    .AddProfileService<IdentityProfileService>();
 
-            services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();
+            //services.AddAuthentication()
+            //    .AddIdentityServerJwt();
 
-            services.AddScoped<IAuthService, AuthService>();
+            services.AddControllersWithViews();
+            services.AddRazorPages();
+
+
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            // services.AddScoped<IAuthService, AuthService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
               .AddJwtBearer(options =>
@@ -93,6 +108,22 @@ namespace LCMSMSWebApi
                       ClockSkew = TimeSpan.Zero,
                   };
               });
+
+            //services.AddDbContext<TempDbContext>(options =>
+            //   options.UseSqlServer(Configuration.GetConnectionString("TempDefaultConnection")));
+
+            //
+            // TODO remove for productions
+            // Paul's db
+            //
+            //builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("PaulConnection"));
+            //builder.UserID = Configuration["PaulUserID"];
+            //builder.Password = Configuration["PaulPassword"];
+            //services.AddDbContext<PaulDbContext>(option =>
+            //    option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
+
+            services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();         
+
 
             services.AddSwaggerGen(c =>
             {
@@ -115,21 +146,26 @@ namespace LCMSMSWebApi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "LCMSMS API");
             });
 
-            app.UseHttpsRedirection();
+            app.UseHttpsRedirection();           
 
+            
+            app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseCors("CorsPolicy");
 
-            // app.UseAuthentication();
-
+            // app.UseIdentityServer();
+            app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                //endpoints.MapRazorPages();
+                //endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }

@@ -7,6 +7,8 @@ using LCMSMSWebApi.Data;
 using LCMSMSWebApi.DTOs;
 using LCMSMSWebApi.Models;
 using LCMSMSWebApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +17,8 @@ namespace LCMSMSWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     public class AcademicsController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;

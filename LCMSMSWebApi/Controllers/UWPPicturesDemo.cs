@@ -8,6 +8,7 @@ using LCMSMSWebApi.Data;
 using LCMSMSWebApi.DTOs;
 using LCMSMSWebApi.Models;
 using LCMSMSWebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace LCMSMSWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class UWPPicturesDemo : ControllerBase
     {
         private readonly ApplicationDbContext _context;

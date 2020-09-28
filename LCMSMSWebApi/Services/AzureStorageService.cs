@@ -9,15 +9,41 @@ using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.Services
 {
+    public enum StorageConnectionType
+    {
+        Photo,
+        Document
+    }
+
     public class AzureStorageService : IFileStorageService
     {
-        private readonly string connectionString;
+        private string connectionString;
+
+        private readonly IConfiguration configuration;
+
         public string BaseUri { get; }
+
+        // AzureDocumentStorage
+        // AzurePhotoStorage
 
         public AzureStorageService(IConfiguration configuration)
         {
-            connectionString = configuration.GetConnectionString("AzureStorageConnection");
+            connectionString = configuration.GetConnectionString("AzurePhotoStorage");
             BaseUri = configuration.GetValue<string>("BlobBaseUri");
+            this.configuration = configuration;
+        }
+
+        public void SetConnectionString(StorageConnectionType storageType)
+        {
+            switch (storageType)
+            {
+                case StorageConnectionType.Photo:
+                    connectionString = configuration.GetConnectionString("AzurePhotoStorage");
+                    break;
+                case StorageConnectionType.Document:
+                    connectionString = configuration.GetConnectionString("AzureDocumentStorage");
+                    break;
+            }
         }
 
         public async Task DeleteFile(string fileRoute, string containerName)
@@ -39,7 +65,7 @@ namespace LCMSMSWebApi.Services
             {
                 // TODO log exception
             }
-          
+
         }
 
         public async Task<string> EditFile(byte[] content, string extension, string containerName, string fileRoute, string contentType)
@@ -48,7 +74,7 @@ namespace LCMSMSWebApi.Services
             return await SaveFile(content, extension, containerName, contentType);
         }
 
-        public async Task<string> SaveFile(byte[] content, string extension, string containerName, string contentType, string fileName=null)
+        public async Task<string> SaveFile(byte[] content, string extension, string containerName, string contentType, string fileName = null)
         {
             try
             {
@@ -69,13 +95,13 @@ namespace LCMSMSWebApi.Services
                 await blob.SetPropertiesAsync();
                 return blob.Uri.ToString();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // TODO log exception
             }
 
             return null;
-            
+
         }
 
         public string GetUri(string fileName, string containerName)
@@ -115,7 +141,7 @@ namespace LCMSMSWebApi.Services
                 // TODO log exception
                 return new byte[] { };
             }
-           
+
         }
     }
 }

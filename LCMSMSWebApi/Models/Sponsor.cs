@@ -41,5 +41,7 @@ namespace LCMSMSWebApi.Models
         public DateTime EntryDate { get; set; }
 
         public List<OrphanSponsor> OrphanSponsors { get; set; }
+
+        public List<Document> Documents { get; set; }
     }
 }
