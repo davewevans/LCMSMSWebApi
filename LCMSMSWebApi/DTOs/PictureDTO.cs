@@ -13,7 +13,7 @@ namespace LCMSMSWebApi.DTOs
     {       
         public int PictureID { get; set; }
 
-        [FileSizeValidator(MaxFileSizeInMbs: 4)]
+        [FileSizeValidator(MaxFileSizeInMbs: 10)]
         [ContentTypeValidator(ContentType.Image)]
         public IFormFile Picture { get; set; }
 

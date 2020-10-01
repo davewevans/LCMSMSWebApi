@@ -11,12 +11,14 @@ namespace LCMSMSWebApi.Models
 
         public string FileName { get; set; }
 
-        public string ContentType { get; set; }
-
-        public bool SendToAll { get; set; }
-
         public int OrphanID { get; set; }
 
-        public int? SponsorID { get; set; }
+        public int SponsorID { get; set; }
+
+        public Orphan Orphan { get; set; }
+
+        public Sponsor Sponsor { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 }

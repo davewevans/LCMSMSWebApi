@@ -13,6 +13,8 @@ namespace LCMSMSWebApi.Models
         public string Caption { get; set; }
         public DateTime EntryDate { get; set; }
         public int OrphanID { get; set; }
-        public Orphan Orphan { get; set; } 
+        public Orphan Orphan { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 }

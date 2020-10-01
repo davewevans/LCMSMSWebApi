@@ -11,6 +11,8 @@ namespace LCMSMSWebApi.Validations
 
         private readonly string[] imageContentTypes = new string[] { "image/jpeg", "image/png", "image/gif" };
 
+        private readonly string[] documentContentTypes = new string[] { "application/pdf", "application/x-pdf" };
+
         public ContentTypeValidator(string[] ValidContentTypes)
         {
             validContentTypes = ValidContentTypes;
@@ -22,6 +24,9 @@ namespace LCMSMSWebApi.Validations
             {
                 case ContentType.Image:
                     validContentTypes = imageContentTypes;
+                    break;
+                case ContentType.PDF:
+                    validContentTypes = documentContentTypes;
                     break;
             }
         }
@@ -53,6 +58,7 @@ namespace LCMSMSWebApi.Validations
 
     public enum ContentType
     {
-        Image
+        Image,
+        PDF
     }
 }
