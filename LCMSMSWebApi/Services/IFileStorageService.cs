@@ -7,7 +7,7 @@ namespace LCMSMSWebApi.Services
 {
     public interface IFileStorageService
     {
-        string BaseUri { get; }
+        string BaseUrl { get; }
 
         Task<string> EditFile(byte[] content, string extension, string containerName, string fileRoute, string contentType);
         
@@ -18,6 +18,8 @@ namespace LCMSMSWebApi.Services
         string GetUri(string fileName, string containerName);
 
         Task<byte[]> DownloadAsync(string fileName, string containerName);
+
+        void SetConnectionString(StorageConnectionType storageType);
 
     }
 }

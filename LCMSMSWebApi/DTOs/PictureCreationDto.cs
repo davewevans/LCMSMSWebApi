@@ -11,7 +11,7 @@ namespace LCMSMSWebApi.DTOs
     public class PictureCreationDto
     {
         [FileSizeValidator(MaxFileSizeInMbs: 10)]
-        [ContentTypeValidator(ContentType.Image)]
+        [ContentTypeValidator(Validations.ContentType.Image)]
         public IFormFile Picture { get; set; }
 
         public string PictureFileName { get; set; }
@@ -20,7 +20,7 @@ namespace LCMSMSWebApi.DTOs
 
         public string Caption { get; set; }
 
-        public string FileContentType { get; set; }
+        public string ContentType { get; set; }
 
         public int OrphanID { get; set; }
     }

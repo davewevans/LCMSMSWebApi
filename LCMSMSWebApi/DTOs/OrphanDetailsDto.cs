@@ -47,5 +47,7 @@ namespace LCMSMSWebApi.DTOs
         public List<NarrationDto> Narrations { get; set; }
 
         public List<AcademicDto> Academics { get; set; }
+
+        public List<DocumentDTO> Documents { get; set; }
     }
 }

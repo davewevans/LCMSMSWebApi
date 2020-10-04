@@ -19,7 +19,7 @@ namespace LCMSMSWebApi.DTOs
 
         public string PictureFileName { get; set; }
 
-        public string BaseUri { get; set; }
+        public string BaseUrl { get; set; }
 
         public bool SetAsProfilePic { get; set; }
 

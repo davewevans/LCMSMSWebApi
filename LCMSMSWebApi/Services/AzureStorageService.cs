@@ -21,7 +21,7 @@ namespace LCMSMSWebApi.Services
 
         private readonly IConfiguration configuration;
 
-        public string BaseUri { get; }
+        public string BaseUrl { get; set; }
 
         // AzureDocumentStorage
         // AzurePhotoStorage
@@ -29,7 +29,7 @@ namespace LCMSMSWebApi.Services
         public AzureStorageService(IConfiguration configuration)
         {
             connectionString = configuration.GetConnectionString("AzurePhotoStorage");
-            BaseUri = configuration.GetValue<string>("BlobBaseUri");
+            BaseUrl = configuration.GetValue<string>("BlobBasePhotosUrl");
             this.configuration = configuration;
         }
 
@@ -39,9 +39,11 @@ namespace LCMSMSWebApi.Services
             {
                 case StorageConnectionType.Photo:
                     connectionString = configuration.GetConnectionString("AzurePhotoStorage");
+                    BaseUrl = configuration.GetValue<string>("BlobBasePhotosUrl");
                     break;
                 case StorageConnectionType.Document:
                     connectionString = configuration.GetConnectionString("AzureDocumentStorage");
+                    BaseUrl = configuration.GetValue<string>("BlobBaseDocumentsUrl");
                     break;
             }
         }

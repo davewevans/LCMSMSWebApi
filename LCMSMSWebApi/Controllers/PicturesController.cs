@@ -66,13 +66,13 @@ namespace LCMSMSWebApi.Controllers
         [HttpGet("profilePicture/{id}")]
         public async Task<ActionResult> GetOrphanProfilePicUri(int id)
         {
-            string blobBaseUri = _fileStorageService.BaseUri;
+            string blobBaseUri = _fileStorageService.BaseUrl;
             var orphan = await _context.Orphans.SingleOrDefaultAsync(x => x.OrphanID == id);
             if (orphan == null) return NotFound("No orphan found with that id.");
             var picture = await _context.Pictures.SingleOrDefaultAsync(x => x.PictureID == orphan.ProfilePictureID);
             if (picture == null) return NotFound("No profile picture for this orphan.");
             var pictureDto = _mapper.Map<PictureDto>(picture);
-            pictureDto.BaseUri = _fileStorageService.BaseUri;
+            pictureDto.BaseUrl = _fileStorageService.BaseUrl;
             pictureDto.SetAsProfilePic = true;
             return Ok(pictureDto);
         }
@@ -82,7 +82,7 @@ namespace LCMSMSWebApi.Controllers
         {
             var picture = await _context.Pictures.SingleOrDefaultAsync(x => x.PictureID == id);
             var pictureDto = _mapper.Map<PictureDto>(picture);
-            pictureDto.BaseUri = _fileStorageService.BaseUri;
+            pictureDto.BaseUrl = _fileStorageService.BaseUrl;
             return Ok(pictureDto);
         }
 
@@ -113,6 +113,7 @@ namespace LCMSMSWebApi.Controllers
 
             var extension = Path.GetExtension(picCreation.Picture.FileName);
 
+            _fileStorageService.SetConnectionString(StorageConnectionType.Photo);
             string picUri =
                 await _fileStorageService.SaveFile(pictureBytes, extension, _containerName,
                     picCreation.Picture.ContentType);
@@ -138,7 +139,7 @@ namespace LCMSMSWebApi.Controllers
 
                 await _context.SaveChangesAsync();
                 var pictureDto = _mapper.Map<PictureDto>(newPic);
-                pictureDto.BaseUri = _fileStorageService.BaseUri;
+                pictureDto.BaseUrl = _fileStorageService.BaseUrl;
                 pictureDto.SetAsProfilePic = picCreation.SetAsProfilePic;
 
                 return Ok(picUri);
@@ -150,36 +151,6 @@ namespace LCMSMSWebApi.Controllers
             }
           
         }
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> Post([FromForm] IFormFile image)
-        //{
-        //    string dataStr = Request.Form[""].ToString();
-        //    var picCreation = Newtonsoft.Json.JsonConvert.DeserializeObject<PictureCreationDto>(dataStr);
-
-
-        //    if (image == null || image.Length == 0)
-        //        return BadRequest("Upload a file");
-
-        //    string fileName = image.FileName;
-        //    string extension = Path.GetExtension(fileName);
-
-        //    var allowedExtensions = new List<string> { ".jpg", ".png", ".bmp" };
-
-        //    if (!allowedExtensions.Contains(extension))
-        //        return BadRequest("File is not a valid image");
-
-        //    string newFileName = $"{Guid.NewGuid()}{extension}";
-        //    string filePath = Path.Combine(_environment.ContentRootPath, "wwwroot", "Images", newFileName);
-
-        //    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-        //    {
-        //        await image.CopyToAsync(fileStream);
-        //    }
-
-        //    return Ok($"Images/{newFileName}");
-        //}
 
 
         [HttpPut]

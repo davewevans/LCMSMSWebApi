@@ -12,7 +12,7 @@ namespace LCMSMSWebApi.Services
     {
         private readonly IWebHostEnvironment env;
         private readonly IHttpContextAccessor httpContextAccessor;
-        public string BaseUri { get; private set; }
+        public string BaseUrl { get; private set; }
 
         public InAppStorageService(IWebHostEnvironment env,
             IHttpContextAccessor httpContextAccessor
@@ -20,13 +20,13 @@ namespace LCMSMSWebApi.Services
         {
             this.env = env;
             this.httpContextAccessor = httpContextAccessor;
-            BaseUri = env.WebRootPath;
+            BaseUrl = env.WebRootPath;
         }
 
         public Task DeleteFile(string fileRoute, string containerName)
         {
             var fileName = Path.GetFileName(fileRoute);
-            string fileDirectory = Path.Combine(BaseUri, containerName, fileName);
+            string fileDirectory = Path.Combine(BaseUrl, containerName, fileName);
             if (File.Exists(fileDirectory))
             {
                 File.Delete(fileDirectory);
@@ -50,7 +50,7 @@ namespace LCMSMSWebApi.Services
         {
             fileName ??= $"{Guid.NewGuid()}{extension}";
             
-            string folder = Path.Combine(BaseUri, containerName);
+            string folder = Path.Combine(BaseUrl, containerName);
 
             if (!Directory.Exists(folder))
             {
@@ -71,6 +71,11 @@ namespace LCMSMSWebApi.Services
         }
 
         public Task<byte[]> DownloadAsync(string fileName, string containerName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetConnectionString(StorageConnectionType storageType)
         {
             throw new NotImplementedException();
         }

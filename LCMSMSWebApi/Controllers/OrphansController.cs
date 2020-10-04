@@ -56,26 +56,28 @@ namespace LCMSMSWebApi.Controllers
                .Include("Guardian")
                .Include("Narrations")
                .Include("Academics")
+               .Include("Documents")
                .OrderBy(o => o.LastName)
                .ToListAsync();
 
             orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
 
+            // Set profile pic or placeholder for each orphan
             orphansDto.ForEach(orphan =>
             {
                 var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
                 orphan.ProfilePic = pic == null ?
-                new PictureDto { BaseUri = _fileStorageService.BaseUri, PictureFileName = _placeholderPic }
+                new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
                 : new PictureDto
                 {
                     PictureID = pic.PictureID,
                     PictureFileName = pic.PictureFileName,
-                    BaseUri = _fileStorageService.BaseUri,
+                    BaseUrl = _fileStorageService.BaseUrl,
                     SetAsProfilePic = true,
                     Caption = pic.Caption
                 };
 
-                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
+                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
             });
             return Ok(orphansDto);
         }
@@ -92,6 +94,7 @@ namespace LCMSMSWebApi.Controllers
                 .Include("Guardian")
                 .Include("Narrations")
                 .Include("Academics")
+                .Include("Documents")
                 .OrderBy(o => o.LastName),
                 orphanParameters.PageNumber, orphanParameters.PageSize);
 
@@ -113,17 +116,17 @@ namespace LCMSMSWebApi.Controllers
             {
                 var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
                 orphan.ProfilePic = pic == null ?
-                new PictureDto { BaseUri = _fileStorageService.BaseUri, PictureFileName = _placeholderPic }
+                new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
                 : new PictureDto
                 {
                     PictureID = pic.PictureID,
                     PictureFileName = pic.PictureFileName,
-                    BaseUri = _fileStorageService.BaseUri,
+                    BaseUrl = _fileStorageService.BaseUrl,
                     SetAsProfilePic = true,
                     Caption = pic.Caption
                 };
 
-                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUri, orphan.ProfilePic.PictureFileName);
+                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
             });
             return Ok(orphansDto);
         }       
@@ -137,6 +140,7 @@ namespace LCMSMSWebApi.Controllers
                 .Include("Guardian")
                 .Include("Narrations")
                 .Include("Academics")
+                .Include("Documents")
                 .FirstOrDefaultAsync(x => x.OrphanID == id);
 
             if (orphan == null)
@@ -154,17 +158,17 @@ namespace LCMSMSWebApi.Controllers
             {
                 orphanDto.ProfilePic = new PictureDto
                 {
-                    BaseUri = _fileStorageService.BaseUri,
+                    BaseUrl = _fileStorageService.BaseUrl,
                     PictureFileName = _placeholderPic
                 };                
             }
 
-            orphanDto.ProfilePicUrl = Path.Combine(_fileStorageService.BaseUri, orphanDto.ProfilePic.PictureFileName);
+            orphanDto.ProfilePicUrl = Path.Combine(_fileStorageService.BaseUrl, orphanDto.ProfilePic.PictureFileName);
 
             // Sets the base url for each pic
             orphanDto.Pictures.ForEach(p =>
             {
-                p.BaseUri = _fileStorageService.BaseUri;
+                p.BaseUrl = _fileStorageService.BaseUrl;
                 p.SetAsProfilePic = p.PictureID == orphanDto.ProfilePictureID;
             });
 
@@ -218,14 +222,40 @@ namespace LCMSMSWebApi.Controllers
 
             var picDtos = _mapper.Map<List<PictureDto>>(pics);
 
+            _fileStorageService.SetConnectionString(StorageConnectionType.Photo);
             // Sets the base url for each pic
             picDtos.ForEach(p =>
             {
-                p.BaseUri = _fileStorageService.BaseUri;
+                p.BaseUrl = _fileStorageService.BaseUrl;
                 p.SetAsProfilePic = p.PictureID == orphan.ProfilePictureID;
             });
 
             return Ok(picDtos);
+        }
+
+        [HttpGet("getOrphanPDFs/{id}")]
+        public async Task<ActionResult<List<PictureDto>>> GetOrphanPDFs(int id)
+        {
+            var orphan = await _dbContext.Orphans
+                .FirstOrDefaultAsync(o => o.OrphanID == id);
+
+            if (orphan == null) return BadRequest();
+
+            var pdfs = _dbContext.Documents
+                .Include("Sponsor")
+                .Where(x => x.OrphanID == id)
+                .ToList();
+
+            var pdfDtos = _mapper.Map<List<DocumentDTO>>(pdfs);
+
+            _fileStorageService.SetConnectionString(StorageConnectionType.Document);
+            // Sets the base url for each pic
+            pdfDtos.ForEach(p =>
+            {
+                p.BaseUrl = _fileStorageService.BaseUrl;
+            });
+
+            return Ok(pdfDtos);
         }
 
         [HttpPost]

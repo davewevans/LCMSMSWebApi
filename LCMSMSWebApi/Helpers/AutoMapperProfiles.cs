@@ -30,6 +30,8 @@ namespace LCMSMSWebApi.Helpers
 
             CreateMap<Picture, PictureDto>().ReverseMap();
 
+            CreateMap<Document, DocumentDTO>().ReverseMap();
+
             CreateMap<Orphan, OrphanDetailsDto>();
 
         }        

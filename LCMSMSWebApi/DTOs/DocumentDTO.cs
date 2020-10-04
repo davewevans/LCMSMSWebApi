@@ -11,13 +11,17 @@ namespace LCMSMSWebApi.DTOs
     {
         public int DocumentID { get; set; }
 
-        [FileSizeValidator(MaxFileSizeInMbs: 10)]
-        [ContentTypeValidator(ContentType.PDF)]
+        [FileSizeValidator(MaxFileSizeInMbs: 20)]
+        [ContentTypeValidator(Validations.ContentType.PDF)]
         public IFormFile Document { get; set; }
 
-        public string DocumentFileName { get; set; }
+        public string FileName { get; set; }
 
-        public string BaseUri { get; set; }
+        public string BaseUrl { get; set; }
+
+        public string ContentType { get; set; }
+
+        public SponsorDto Sponsor { get; set; }
 
         public DateTime EntryDate { get; set; }
 
