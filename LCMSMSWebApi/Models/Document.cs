@@ -15,10 +15,12 @@ namespace LCMSMSWebApi.Models
 
         public int SponsorID { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
         public Orphan Orphan { get; set; }
 
         public Sponsor Sponsor { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        
     }
 }

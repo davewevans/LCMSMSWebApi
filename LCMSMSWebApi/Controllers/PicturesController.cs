@@ -122,7 +122,7 @@ namespace LCMSMSWebApi.Controllers
             {
                 PictureFileName = Path.GetFileName(picUri),
                 Caption = picCreation.Caption,
-                EntryDate = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 OrphanID = picCreation.OrphanID,                
             };
 
@@ -187,7 +187,7 @@ namespace LCMSMSWebApi.Controllers
                 {
                     PictureFileName = Path.GetFileName(picUri),
                     Caption = updateProfilePicture.Caption,
-                    EntryDate = DateTime.Now,
+                    CreatedAt = DateTime.Now,
                     OrphanID = updateProfilePicture.OrphanID
                 };
 

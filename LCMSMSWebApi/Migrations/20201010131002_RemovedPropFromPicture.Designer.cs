@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201001154227_EditedDocument")]
-    partial class EditedDocument
+    [Migration("20201010131002_RemovedPropFromPicture")]
+    partial class RemovedPropFromPicture
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -353,14 +353,11 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EntryDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrphanID")
                         .HasColumnType("int");
-
-                    b.Property<string>("PictureFileName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PictureID");
 

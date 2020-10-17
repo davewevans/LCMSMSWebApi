@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200925205430_IdentityUpdate")]
-    partial class IdentityUpdate
+    [Migration("20201010125548_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,88 +20,6 @@ namespace LCMSMSWebApi.Migrations
                 .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
-                {
-                    b.Property<string>("UserCode")
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(50000);
-
-                    b.Property<string>("DeviceCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<DateTime?>("Expiration")
-                        .IsRequired()
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SubjectId")
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.HasKey("UserCode");
-
-                    b.HasIndex("DeviceCode")
-                        .IsUnique();
-
-                    b.HasIndex("Expiration");
-
-                    b.ToTable("DeviceCodes");
-                });
-
-            modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.PersistedGrant", b =>
-                {
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(50000);
-
-                    b.Property<DateTime?>("Expiration")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SubjectId")
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
-
-                    b.HasKey("Key");
-
-                    b.HasIndex("Expiration");
-
-                    b.HasIndex("SubjectId", "ClientId", "Type");
-
-                    b.ToTable("PersistedGrants");
-                });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.Academic", b =>
                 {
@@ -254,8 +172,8 @@ namespace LCMSMSWebApi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ContentType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
@@ -263,10 +181,7 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<int>("OrphanID")
                         .HasColumnType("int");
 
-                    b.Property<bool>("SendToAll")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("SponsorID")
+                    b.Property<int>("SponsorID")
                         .HasColumnType("int");
 
                     b.HasKey("DocumentID");
@@ -434,6 +349,9 @@ namespace LCMSMSWebApi.Migrations
 
                     b.Property<string>("Caption")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
@@ -640,15 +558,17 @@ namespace LCMSMSWebApi.Migrations
 
             modelBuilder.Entity("LCMSMSWebApi.Models.Document", b =>
                 {
-                    b.HasOne("LCMSMSWebApi.Models.Orphan", null)
+                    b.HasOne("LCMSMSWebApi.Models.Orphan", "Orphan")
                         .WithMany("Documents")
                         .HasForeignKey("OrphanID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LCMSMSWebApi.Models.Sponsor", null)
+                    b.HasOne("LCMSMSWebApi.Models.Sponsor", "Sponsor")
                         .WithMany("Documents")
-                        .HasForeignKey("SponsorID");
+                        .HasForeignKey("SponsorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.Narration", b =>

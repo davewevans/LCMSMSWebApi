@@ -65,8 +65,12 @@ namespace LCMSMSWebApi
             //builder.UserID = Configuration["UserID"];
             //builder.Password = Configuration["Password"]; 
 
+            //services.AddDbContext<LocalApplicationDbContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("LocalDefaultConnection")));
+
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+               options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
 
             // IdentityServer 4 configuration
             //services.AddDefaultIdentity<IdentityUser>(options =>
@@ -109,8 +113,6 @@ namespace LCMSMSWebApi
                   };
               });
 
-            //services.AddDbContext<TempDbContext>(options =>
-            //   options.UseSqlServer(Configuration.GetConnectionString("TempDefaultConnection")));
 
             //
             // TODO remove for productions

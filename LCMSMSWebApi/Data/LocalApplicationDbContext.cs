@@ -1,17 +1,18 @@
-﻿using System;
+﻿using LCMSMSWebApi.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using LCMSMSWebApi.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace LCMSMSWebApi.Data
 {
-    public class AzureDevDbContext: DbContext
+    public class LocalApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public AzureDevDbContext(DbContextOptions<AzureDevDbContext> options): base(options)
+        public LocalApplicationDbContext(DbContextOptions<LocalApplicationDbContext> options) : base(options)
         {
-            
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

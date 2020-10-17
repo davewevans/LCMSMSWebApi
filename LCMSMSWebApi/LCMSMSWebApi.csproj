@@ -16,8 +16,6 @@
     <Compile Remove="Controllers\AuthController.cs" />
     <Compile Remove="Controllers\FooController.cs" />
     <Compile Remove="Controllers\OidcConfigurationController.cs" />
-    <Compile Remove="Controllers\SeedDbController.cs" />
-    <Compile Remove="Data\AzureDevDbContext.cs" />
     <Compile Remove="Data\PaulDbContext.cs" />
     <Compile Remove="Data\TempDbContext.cs" />
     <Compile Remove="enums\Gender.cs" />
