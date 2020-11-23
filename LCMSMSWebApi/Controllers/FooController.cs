@@ -7,13 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LCMSMSWebApi.Controllers
 {
+
+    public class FooModel
+    {
+        public string Message { get; set; }
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class FooController : ControllerBase
     {
         public IActionResult Get()
         {
-            return Ok("This foo controller is working!");
+            var dto = new FooModel { Message = "This foo controller is working!" };
+            return Ok(dto);
         }
     }
 }

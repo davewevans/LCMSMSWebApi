@@ -9,9 +9,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using LCMSMSWebApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LCMSMSWebApi.Controllers
 {
+    public class OrphanProfilePictureTem9uhtieuhgt
+    {
+        public int OrphanId { get; set; }
+        public int PicId { get; set; }
+    }
+
+
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
@@ -42,6 +50,8 @@ namespace LCMSMSWebApi.Controllers
 
             // PopulateRealData();
 
+            // PopulateProfilePicIds();
+
             // var seeder = new DummyDataSeeder(_dbContext, _env);
             //seeder.SeedAllDummyData();
 
@@ -66,6 +76,67 @@ namespace LCMSMSWebApi.Controllers
             //await _dbContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+
+        private void PopulateProfilePicIds()
+        {
+            //var orphansSrc = _srcDbContext.Orphans.ToList();
+            var orphansDest = _destDbContext.Orphans.ToList();
+         
+            var orphanProfilePics = new List<OrphanProfilePictureTem9uhtieuhgt>()
+            {
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1120, PicId=1 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1301, PicId=2 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1239, PicId=4 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1303, PicId=6 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1024, PicId=8 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1120, PicId=10 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1223, PicId=12 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1138, PicId=13 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1260, PicId=14 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1167, PicId=16 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1154, PicId=19 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1294, PicId=22 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1135, PicId=25 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1282, PicId=27 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1242, PicId=29 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1010, PicId=31 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1098, PicId=33 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1055, PicId=35 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1258, PicId=37 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1157, PicId=40 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1287, PicId=42 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1227, PicId=45 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1001, PicId=48 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1076, PicId=50 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1086, PicId=52 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1186, PicId=53 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1013, PicId=55 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1197, PicId=57 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1062, PicId=59 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1256, PicId=61 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1212, PicId=62 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1226, PicId=65 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1042, PicId=67 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1292, PicId=69 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1145, PicId=72 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1224, PicId=74 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1291, PicId=77 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1189, PicId=79 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1214, PicId=81 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1007, PicId=84 },
+                new OrphanProfilePictureTem9uhtieuhgt  {OrphanId=1098, PicId=86 },              
+            };
+
+
+            foreach (var orphanProfilePic in orphanProfilePics)
+            {
+                var orphan = orphansDest.FirstOrDefault(x => x.OrphanID == orphanProfilePic.OrphanId);
+                orphan.ProfilePictureID = orphanProfilePic.PicId;
+            }
+
+            _destDbContext.SaveChanges();
         }
 
         private void PopulateRealData()
@@ -97,6 +168,7 @@ namespace LCMSMSWebApi.Controllers
                     ProfileNumber = orphan.ProfileNumber,
                     DateOfBirth = orphan.DateOfBirth,
                     EntryDate = orphan.EntryDate,
+                    ProfilePictureID = orphan.ProfilePictureID
                     // GuardianID = null // orphan.GuardianID
                 });
             }

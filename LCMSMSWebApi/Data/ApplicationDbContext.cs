@@ -14,7 +14,9 @@ namespace LCMSMSWebApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Configure many-to-many relationships
             modelBuilder.Entity<OrphanSponsor>().HasKey(x => new { x.OrphanID, x.SponsorID });
+            modelBuilder.Entity<OrphanPicture>().HasKey(x => new { x.OrphanID, x.PictureID });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -27,7 +29,7 @@ namespace LCMSMSWebApi.Data
         public DbSet<Picture> Pictures { get; set; }
         public DbSet<DbUpdate> DbUpdates { get; set; }
         public DbSet<OrphanSponsor> OrphanSponsors { get; set; }
-        public DbSet<OrphanProfilePic> OrphanProfilePics { get; set; }
+        public DbSet<OrphanPicture> OrphanPictures { get; set; }
         public DbSet<Document> Documents { get; set; }
     }
 }

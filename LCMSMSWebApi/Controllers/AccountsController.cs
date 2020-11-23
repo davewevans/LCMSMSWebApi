@@ -27,38 +27,56 @@ namespace LCMSMSWebApi.Controllers
         private readonly IConfiguration configuration;
 
         public AccountsController(
-            UserManager<ApplicationUser> userManager, 
-            SignInManager<ApplicationUser> signInManager, 
-            IConfiguration configuration )
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IConfiguration configuration)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
         }
 
+        [Authorize(Roles ="Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost, Route("Create")]
-        public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo newUser)
+        public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserCreation newUser)
         {
-            var user = new ApplicationUser { UserName = newUser.Email, Email = newUser.Email, FirstName = newUser.FirstName ?? "" };
+            var user = new ApplicationUser
+            {
+                UserName = newUser.Email,
+                Email = newUser.Email,
+                FirstName = newUser.FirstName ?? "",
+                LastName = newUser.LastName ?? ""
+            };
             var result = await userManager.CreateAsync(user, newUser.Password);
+
+            // assign role
+            await userManager.AddToRoleAsync(user, newUser.Role);
+
+            // for the token
+            var userInfo = new UserInfo
+            {
+                FirstName = newUser.FirstName,
+                Email = newUser.Email,
+            };
 
             if (result.Succeeded)
             {
-                return await BuildToken(newUser);
+                return await BuildToken(userInfo);
             }
             else
             {
-                return BadRequest("Username or password is invalid");
+                return BadRequest("Username or password is invalid. Or no first name was given.");
             }
-        }
+        }  
+          
 
         [HttpPost, Route("Login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo userInfo)
         {
             var result = await signInManager.PasswordSignInAsync(
-                userInfo.Email, 
-                userInfo.Password, 
-                isPersistent: false, 
+                userInfo.Email,
+                userInfo.Password,
+                isPersistent: false,
                 lockoutOnFailure: false);
 
             if (result.Succeeded)
@@ -67,8 +85,23 @@ namespace LCMSMSWebApi.Controllers
             }
             else
             {
-                return BadRequest("Invalid login attempt");
+                return BadRequest("Username or password is incorrect.");
             }
+        }
+
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPut("resetPassword/{userId}")]
+        public async Task<ActionResult> ResetPassword(string userId, [FromBody] PasswordResetDTO resetPasswordDTO)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            var code = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, code, resetPasswordDTO.NewPassword);
+            if (result.Succeeded)
+            {
+                return Ok("Password has been reset.");
+            }
+            return BadRequest("Invalid password.");
+            
         }
 
         [HttpGet, Route("RenewToken")]
@@ -86,27 +119,38 @@ namespace LCMSMSWebApi.Controllers
         private async Task<UserToken> BuildToken(UserInfo userInfo)
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, userInfo.Email),
+            {               
                 new Claim(ClaimTypes.Email, userInfo.Email),
-                new Claim("myvalue", "whatever")
             };
 
             var identityUser = await userManager.FindByEmailAsync(userInfo.Email);
-            var claimsDB = await userManager.GetClaimsAsync(identityUser);
 
+            // Add firstname as claim
+            if (!string.IsNullOrWhiteSpace(identityUser.FirstName))
+                claims.Add(new Claim(ClaimTypes.Name, identityUser.FirstName));
+
+            // Add claims (doesn't include roles)
+            var claimsDB = await userManager.GetClaimsAsync(identityUser);
             claims.AddRange(claimsDB);
+
+            // Add roles
+            var roles = await userManager.GetRolesAsync(identityUser);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Tokens:key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Expiration time span for the JWT token
             var expiration = DateTime.UtcNow.AddDays(1);
 
             JwtSecurityToken token = new JwtSecurityToken(
-                issuer: configuration["Tokens:Issuer"], 
-                audience: configuration["Tokens:Issuer"], 
-                claims: claims, 
-                expires: expiration, 
+                issuer: configuration["Tokens:Issuer"],
+                audience: configuration["Tokens:Issuer"],
+                claims: claims,
+                expires: expiration,
                 signingCredentials: creds);
 
             return new UserToken

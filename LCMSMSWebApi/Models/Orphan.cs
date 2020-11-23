@@ -36,17 +36,21 @@ namespace LCMSMSWebApi.Models
 
         public int? GuardianID { get; set; }
 
-        public int? ProfilePictureID { get; set; }
+        //public int? ProfilePictureID { get; set; }
+
+        public string ProfilePicFileName { get; set; }
 
         public Guardian Guardian { get; set; }
 
         public List<Narration> Narrations { get; set; }
 
-        public List<Picture> Pictures { get; set; }
+        // public List<Picture> Pictures { get; set; }
 
         public List<Academic> Academics { get; set; }
 
         public List<OrphanSponsor> OrphanSponsors { get; set; }
+
+        public List<OrphanPicture> OrphanPictures { get; set; }
 
         public List<Document> Documents { get; set; }
 

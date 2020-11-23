@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-
-namespace LCMSMSWebApi.DTOs
+﻿namespace LCMSMSWebApi.DTOs
 {
-    public class UserDTO
+    public class UserCreation
     {
-        public string UserID { get; set; }
-
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
 
         public string Email { get; set; }
+
+        public string Password { get; set; }
+
+        public string ConfirmPassword { get; set; }
 
         public string Role { get; set; }
     }

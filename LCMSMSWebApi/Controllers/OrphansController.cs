@@ -62,28 +62,44 @@ namespace LCMSMSWebApi.Controllers
 
             orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
 
+
             // Set profile pic or placeholder for each orphan
             orphansDto.ForEach(orphan =>
             {
-                var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
-                orphan.ProfilePic = pic == null ?
-                new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
-                : new PictureDto
+                try
                 {
-                    PictureID = pic.PictureID,
-                    PictureFileName = pic.PictureFileName,
-                    BaseUrl = _fileStorageService.BaseUrl,
-                    SetAsProfilePic = true,
-                    Caption = pic.Caption
-                };
+                    var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
+                    orphan.ProfilePic = pic == null ?
+                    new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
+                    : new PictureDto
+                    {
+                        PictureID = pic.PictureID,
+                        PictureFileName = pic.PictureFileName,
+                        BaseUrl = _fileStorageService.BaseUrl,
+                        SetAsProfilePic = true,
+                        Caption = pic.Caption
+                    };
 
-                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
+                    if (orphan.ProfilePic.PictureFileName != null)
+                    {
+                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
+                    }
+                    else
+                    {
+                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, _placeholderPic);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
             });
             return Ok(orphansDto);
         }
 
-        [HttpGet]       
-        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters=null)
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters = null)
         {
             List<OrphanDetailsDto> orphansDto = new List<OrphanDetailsDto>();
 
@@ -98,14 +114,14 @@ namespace LCMSMSWebApi.Controllers
                 .OrderBy(o => o.LastName),
                 orphanParameters.PageNumber, orphanParameters.PageSize);
 
-                var metaData = new
-                {
-                    orphans.TotalCount,
-                    orphans.PageSize,
-                    orphans.PageNumber,
-                    orphans.HasNext,
-                    orphans.HasPrevious
-                };
+            var metaData = new
+            {
+                orphans.TotalCount,
+                orphans.PageSize,
+                orphans.PageNumber,
+                orphans.HasNext,
+                orphans.HasPrevious
+            };
 
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
@@ -114,22 +130,38 @@ namespace LCMSMSWebApi.Controllers
 
             orphansDto.ForEach(orphan =>
             {
-                var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
-                orphan.ProfilePic = pic == null ?
-                new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
-                : new PictureDto
+                try
                 {
-                    PictureID = pic.PictureID,
-                    PictureFileName = pic.PictureFileName,
-                    BaseUrl = _fileStorageService.BaseUrl,
-                    SetAsProfilePic = true,
-                    Caption = pic.Caption
-                };
+                    var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
+                    orphan.ProfilePic = pic == null ?
+                    new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
+                    : new PictureDto
+                    {
+                        PictureID = pic.PictureID,
+                        PictureFileName = pic.PictureFileName,
+                        BaseUrl = _fileStorageService.BaseUrl,
+                        SetAsProfilePic = true,
+                        Caption = pic.Caption
+                    };
 
-                orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
+                    if (orphan.ProfilePic.PictureFileName != null)
+                    {
+                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
+                    }
+                    else
+                    {
+                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, _placeholderPic);
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+
+                }
+
             });
             return Ok(orphansDto);
-        }       
+        }
 
         [HttpGet("{id}", Name = "getOrphan")]
         public async Task<ActionResult<OrphanDetailsDto>> GetOrphan(int id)
@@ -160,10 +192,14 @@ namespace LCMSMSWebApi.Controllers
                 {
                     BaseUrl = _fileStorageService.BaseUrl,
                     PictureFileName = _placeholderPic
-                };                
+                };
             }
 
-            orphanDto.ProfilePicUrl = Path.Combine(_fileStorageService.BaseUrl, orphanDto.ProfilePic.PictureFileName);
+            if (orphanDto.ProfilePic.PictureFileName != null)
+            {
+                orphanDto.ProfilePicUrl = Path.Combine(_fileStorageService.BaseUrl, orphanDto.ProfilePic.PictureFileName);
+            }           
+
 
             // Sets the base url for each pic
             orphanDto.Pictures.ForEach(p =>
@@ -309,7 +345,7 @@ namespace LCMSMSWebApi.Controllers
             {
                 return NotFound("Record not found.");
             }
-            
+
             patchOrphan.ApplyTo(recordToPatch, ModelState);
             await _dbContext.SaveChangesAsync();
             return Ok(recordToPatch);

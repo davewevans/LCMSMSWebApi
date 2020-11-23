@@ -14,8 +14,11 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\AuthController.cs" />
-    <Compile Remove="Controllers\FooController.cs" />
     <Compile Remove="Controllers\OidcConfigurationController.cs" />
+    <Compile Remove="Controllers\OrphansController.cs" />
+    <Compile Remove="Controllers\PicturesController.cs" />
+    <Compile Remove="Controllers\SeedDbController.cs" />
+    <Compile Remove="Controllers\UWPPicturesDemo.cs" />
     <Compile Remove="Data\PaulDbContext.cs" />
     <Compile Remove="Data\TempDbContext.cs" />
     <Compile Remove="enums\Gender.cs" />
