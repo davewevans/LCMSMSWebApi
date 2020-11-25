@@ -14,9 +14,9 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\AuthController.cs" />
+    <Compile Remove="Controllers\DocumentsController.cs" />
     <Compile Remove="Controllers\OidcConfigurationController.cs" />
     <Compile Remove="Controllers\OrphansController.cs" />
-    <Compile Remove="Controllers\PicturesController.cs" />
     <Compile Remove="Controllers\SeedDbController.cs" />
     <Compile Remove="Controllers\UWPPicturesDemo.cs" />
     <Compile Remove="Data\PaulDbContext.cs" />

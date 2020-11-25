@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class GuardianUpdateDto
+    public class GuardianUpdateDTO
     {
         public string FirstName { get; set; } = string.Empty;
 

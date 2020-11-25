@@ -14,25 +14,25 @@ namespace LCMSMSWebApi.Helpers
 
             CreateMap<Orphan, OrphanDto>().ReverseMap();
 
-            CreateMap<OrphanEditDto, Orphan>();
+            CreateMap<OrphanEditDTO, Orphan>();
 
             CreateMap<Sponsor, SponsorDto>().ReverseMap();
-            CreateMap<SponsorUpdateDto, Sponsor>();
+            CreateMap<SponsorUpdateDTO, Sponsor>();
 
             CreateMap<Guardian, GuardianDto>().ReverseMap();
-            CreateMap<GuardianUpdateDto, Guardian>();
+            CreateMap<GuardianUpdateDTO, Guardian>();
 
             CreateMap<Academic, AcademicDto>().ReverseMap();
-            CreateMap<AcademicUpdateDto, Academic>();
+            CreateMap<AcademicUpdateDTO, Academic>();
 
             CreateMap<Narration, NarrationDto>().ReverseMap();
-            CreateMap<NarrationUpdateDto, Narration>();
+            CreateMap<NarrationUpdateDTO, Narration>();
 
             CreateMap<Picture, PictureDto>().ReverseMap();
 
             CreateMap<Document, DocumentDTO>().ReverseMap();
 
-            CreateMap<Orphan, OrphanDetailsDto>();
+            CreateMap<Orphan, OrphanDetailsDTO>();
 
         }        
     }

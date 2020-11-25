@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TinifyAPI;
 using Exception = TinifyAPI.Exception;
 
@@ -24,10 +20,13 @@ namespace LCMSMSWebApi.Services
         public ImageService(IConfiguration configuration)
         {
             Tinify.Key = configuration.GetValue<string>("TinyPngApiKey");
-        }
+        }       
 
-        public byte[] ResizeIfTooBig(IFormFile imageFile, int maxWidth)
+        public byte[] ResizeFileIfTooBig(IFormFile imageFile, int maxWidth)
         {
+            // Checks if image size (not bytes) is too big. If so, the resizes per max width.
+            // I didn't refactor into two methods to prevent loading to stream multiple times.
+
             try
             {
                 var extension = Path.GetExtension(imageFile.FileName);

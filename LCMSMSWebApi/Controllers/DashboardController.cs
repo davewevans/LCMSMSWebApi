@@ -31,7 +31,8 @@ namespace LCMSMSWebApi.Controllers
         [HttpGet("totalCounts")]
         public async Task<IActionResult> GetTotalCounts()
         {
-            var totalCounts = new TotalCountsDto
+
+            var totalCounts = new TotalCountsDTO
             {
                 TotalOrphans = await _dbContext.Orphans.CountAsync(),
                 TotalGuardians = await _dbContext.Guardians.CountAsync(),
@@ -44,7 +45,7 @@ namespace LCMSMSWebApi.Controllers
         [HttpGet("orphanStats")]
         public async Task<IActionResult> GetOrphanStats()
         {
-            var orphanStatsDto = new OrphanStatisticsDto
+            var orphanStatsDto = new OrphanStatisticsDTO
             {
                 ActiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Active"),
                 InactiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Not Active"),
@@ -58,7 +59,7 @@ namespace LCMSMSWebApi.Controllers
         public async Task<IActionResult> GetNarrationStats()
         {
             var narrations = await _dbContext.Narrations.ToListAsync();
-            var narrationStats = new NarrationStatisticsDto();
+            var narrationStats = new NarrationStatisticsDTO();
 
             narrationStats.TotalNarrationCount = narrations.Count();
             narrationStats.OrphanNarrationCount = (from x in narrations where x.OrphanID != 0 && x.OrphanID != null select x).Count();
@@ -68,8 +69,15 @@ namespace LCMSMSWebApi.Controllers
             narrationStats.GuardianLast6MoCount = narrations.Where(x => x.GuardianID != 0 && x.GuardianID != null &&
                 DateTime.Compare(x.EntryDate, DateTime.Today.AddMonths(-6)) >= 0).Count();
 
-            narrationStats.OrphanLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault().EntryDate;
-            narrationStats.GuardianLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault().EntryDate;
+            try
+            {
+               narrationStats.OrphanLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault()?.EntryDate;
+               narrationStats.GuardianLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault()?.EntryDate;
+            }
+            catch (Exception ex)
+            {
+                // TODO log
+            }
 
             return Ok(narrationStats);
         }

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using LCMSMSWebApi.Validations;
+﻿using LCMSMSWebApi.Validations;
 using Microsoft.AspNetCore.Http;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class PictureCreationDto
+    public class PictureCreationDTO
     {
-        [FileSizeValidator(MaxFileSizeInMbs: 10)]
-        [ContentTypeValidator(Validations.ContentType.Image)]
+        //[FileSizeValidator(MaxFileSizeInMbs: 10)]
+        //[ContentTypeValidator(Validations.ContentType.Image)]
         public IFormFile Picture { get; set; }
 
         public string PictureFileName { get; set; }

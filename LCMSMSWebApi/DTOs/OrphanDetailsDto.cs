@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class OrphanDetailsDto
+    public class OrphanDetailsDTO
     {
         public int OrphanID { get; set; }
 

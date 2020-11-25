@@ -21,8 +21,6 @@ namespace LCMSMSWebApi.DTOs
 
         public string BaseUrl { get; set; }
 
-        public bool SetAsProfilePic { get; set; }
-
         public string Caption { get; set; }
 
         public DateTime EntryDate { get; set; }

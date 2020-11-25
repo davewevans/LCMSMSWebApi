@@ -88,7 +88,7 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] NarrationUpdateDto narrationUpdateDtoDto)
+        public async Task<ActionResult> Put(int id, [FromBody] NarrationUpdateDTO narrationUpdateDtoDto)
         {
             //
             // TODO

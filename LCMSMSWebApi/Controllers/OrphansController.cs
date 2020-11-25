@@ -33,6 +33,7 @@ namespace LCMSMSWebApi.Controllers
         private readonly ISyncDatabasesService _syncDatabasesService;
         private readonly IFileStorageService _fileStorageService;
         private readonly string _placeholderPic = "no_image_found_300x300.jpg";
+        
 
         public OrphansController(ApplicationDbContext dbContext,
             IMapper mapper,
@@ -207,6 +208,7 @@ namespace LCMSMSWebApi.Controllers
                 p.BaseUrl = _fileStorageService.BaseUrl;
                 p.SetAsProfilePic = p.PictureID == orphanDto.ProfilePictureID;
             });
+                       
 
             // Include sponsors
             var sponsors = from os in _dbContext.OrphanSponsors
@@ -217,6 +219,7 @@ namespace LCMSMSWebApi.Controllers
 
             return orphanDto;
         }
+       
 
         [HttpGet("getOrphanGuardian/{id}")]
         public async Task<ActionResult<Guardian>> GetOrphanGuardian(int id)

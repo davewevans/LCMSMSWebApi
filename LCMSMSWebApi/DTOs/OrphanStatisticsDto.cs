@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace LCMSMSWebApi.DTOs
+﻿namespace LCMSMSWebApi.DTOs
 {
-    public class OrphanStatisticsDto
+    public class OrphanStatisticsDTO
     {
         public int ActiveCount { get; set; } 
 

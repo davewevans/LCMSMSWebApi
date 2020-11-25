@@ -1,6 +1,6 @@
 ﻿namespace LCMSMSWebApi.DTOs
 {
-    public class TotalCountsDto
+    public class TotalCountsDTO
     {
         public int TotalOrphans { get; set; }
 
