@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class NarrationDto
+    public class NarrationDTO
     {
         public int NarrationID { get; set; }
 

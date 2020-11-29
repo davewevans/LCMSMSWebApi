@@ -1,14 +1,11 @@
-﻿using System;
+﻿using LCMSMSWebApi.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LCMSMSWebApi.Models;
-using Newtonsoft.Json;
 
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class OrphanDto
+    public class OrphanDTO
     {
         public int OrphanID { get; set; }
 
@@ -34,9 +31,9 @@ namespace LCMSMSWebApi.DTOs
 
         public int? ProfilePictureID { get; set; }
 
-        public PictureDto ProfilePic { get; set; }
+        public PictureDTO ProfilePic { get; set; }
 
-        public List<PictureDto> Pictures { get; set; }
+        public List<PictureDTO> Pictures { get; set; }
 
         public List<Narration> Narrations { get; set; }
 
@@ -44,7 +41,7 @@ namespace LCMSMSWebApi.DTOs
 
         public Guardian Guardian { get; set; }
 
-        public List<AcademicDto> Academics { get; set; }
+        public List<AcademicDTO> Academics { get; set; }
 
         public override string ToString()
         {

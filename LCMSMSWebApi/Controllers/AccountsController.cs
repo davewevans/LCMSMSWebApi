@@ -38,7 +38,7 @@ namespace LCMSMSWebApi.Controllers
 
         [Authorize(Roles ="Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost, Route("Create")]
-        public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserCreation newUser)
+        public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserCreationDTO newUser)
         {
             var user = new ApplicationUser
             {
@@ -53,7 +53,7 @@ namespace LCMSMSWebApi.Controllers
             await userManager.AddToRoleAsync(user, newUser.Role);
 
             // for the token
-            var userInfo = new UserInfo
+            var userInfo = new UserInfoDTO
             {
                 FirstName = newUser.FirstName,
                 Email = newUser.Email,
@@ -71,7 +71,7 @@ namespace LCMSMSWebApi.Controllers
           
 
         [HttpPost, Route("Login")]
-        public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo userInfo)
+        public async Task<ActionResult<UserToken>> Login([FromBody] UserInfoDTO userInfo)
         {
             var result = await signInManager.PasswordSignInAsync(
                 userInfo.Email,
@@ -108,7 +108,7 @@ namespace LCMSMSWebApi.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<UserToken>> Renew()
         {
-            var userInfo = new UserInfo()
+            var userInfo = new UserInfoDTO()
             {
                 Email = HttpContext.User.Identity.Name
             };
@@ -116,7 +116,7 @@ namespace LCMSMSWebApi.Controllers
             return await BuildToken(userInfo);
         }
 
-        private async Task<UserToken> BuildToken(UserInfo userInfo)
+        private async Task<UserToken> BuildToken(UserInfoDTO userInfo)
         {
             var claims = new List<Claim>
             {               

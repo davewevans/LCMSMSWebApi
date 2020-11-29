@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class GuardianDto
+    public class GuardianDTO
     {
         public int GuardianID { get; set; }
 

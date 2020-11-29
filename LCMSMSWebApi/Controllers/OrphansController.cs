@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using LCMSMSWebApi.Data;
 using LCMSMSWebApi.DTOs;
 using LCMSMSWebApi.Helpers;
 using LCMSMSWebApi.Models;
 using LCMSMSWebApi.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.JsonPatch;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -31,87 +27,73 @@ namespace LCMSMSWebApi.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ISyncDatabasesService _syncDatabasesService;
-        private readonly IFileStorageService _fileStorageService;
+        private readonly IPictureStorageService _pictureStorageService;
+        private readonly IDocumentStorageService _documentStorageService;
+        private readonly PictureService _pictureService;
         private readonly string _placeholderPic = "no_image_found_300x300.jpg";
         
 
         public OrphansController(ApplicationDbContext dbContext,
             IMapper mapper,
             ISyncDatabasesService syncDatabasesService,
-            IFileStorageService fileStorageService)
+            IPictureStorageService pictureStorageService,
+            IDocumentStorageService documentStorageService,
+            PictureService pictureService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _syncDatabasesService = syncDatabasesService;
-            _fileStorageService = fileStorageService;
+            _pictureStorageService = pictureStorageService;
+            _documentStorageService = documentStorageService;
+            _pictureService = pictureService;
         }
 
-        [HttpGet("getAllOrphans")]
+        /// <summary>
+        /// Gets all orphan records with no pagination, sorting, or filtering.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("allOrphans")]
         public async Task<IActionResult> GetAll()
         {
-            List<OrphanDetailsDto> orphansDto = new List<OrphanDetailsDto>();
+            List<OrphanDetailsDTO> orphansDto = new List<OrphanDetailsDTO>();
 
             var orphans = await _dbContext.Orphans
                .AsNoTracking()
-               .Include("Pictures")
                .Include("Guardian")
                .Include("Narrations")
                .Include("Academics")
-               .Include("Documents")
                .OrderBy(o => o.LastName)
                .ToListAsync();
 
-            orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
+            orphansDto = _mapper.Map<List<OrphanDetailsDTO>>(orphans);
 
-
-            // Set profile pic or placeholder for each orphan
+            // Set profile pic url or placeholder url for each orphan
             orphansDto.ForEach(orphan =>
             {
-                try
-                {
-                    var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
-                    orphan.ProfilePic = pic == null ?
-                    new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
-                    : new PictureDto
-                    {
-                        PictureID = pic.PictureID,
-                        PictureFileName = pic.PictureFileName,
-                        BaseUrl = _fileStorageService.BaseUrl,
-                        SetAsProfilePic = true,
-                        Caption = pic.Caption
-                    };
-
-                    if (orphan.ProfilePic.PictureFileName != null)
-                    {
-                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
-                    }
-                    else
-                    {
-                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, _placeholderPic);
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                }
-
+                orphan.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
+                ? $"{ _pictureStorageService.BaseUrl }{ _placeholderPic }"
+                : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
             });
+           
             return Ok(orphansDto);
         }
 
-        [HttpGet]
+        /// <summary>
+        /// Gets orphan records with pagination, filtering, and sorting.
+        /// </summary>
+        /// <param name="orphanParameters"></param>
+        /// <returns></returns>
+        [HttpGet("orphans")]
         public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters = null)
         {
-            List<OrphanDetailsDto> orphansDto = new List<OrphanDetailsDto>();
+            List<OrphanDetailsDTO> orphansDto = new List<OrphanDetailsDTO>();
 
             var orphans = await PagedList<Orphan>
                 .ToPagedListAsync(_dbContext.Orphans
-                .AsNoTracking()
-                .Include("Pictures")
+                .AsNoTracking()                
                 .Include("Guardian")
                 .Include("Narrations")
                 .Include("Academics")
-                .Include("Documents")
                 .OrderBy(o => o.LastName),
                 orphanParameters.PageNumber, orphanParameters.PageSize);
 
@@ -127,49 +109,28 @@ namespace LCMSMSWebApi.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
 
-            orphansDto = _mapper.Map<List<OrphanDetailsDto>>(orphans);
+            orphansDto = _mapper.Map<List<OrphanDetailsDTO>>(orphans);
 
             orphansDto.ForEach(orphan =>
             {
-                try
-                {
-                    var pic = _dbContext.Pictures.SingleOrDefault(p => p.PictureID == orphan.ProfilePictureID);
-                    orphan.ProfilePic = pic == null ?
-                    new PictureDto { BaseUrl = _fileStorageService.BaseUrl, PictureFileName = _placeholderPic }
-                    : new PictureDto
-                    {
-                        PictureID = pic.PictureID,
-                        PictureFileName = pic.PictureFileName,
-                        BaseUrl = _fileStorageService.BaseUrl,
-                        SetAsProfilePic = true,
-                        Caption = pic.Caption
-                    };
-
-                    if (orphan.ProfilePic.PictureFileName != null)
-                    {
-                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, orphan.ProfilePic.PictureFileName);
-                    }
-                    else
-                    {
-                        orphan.ProfilePicUrl = Path.Combine(orphan.ProfilePic.BaseUrl, _placeholderPic);
-                    }
-                    
-                }
-                catch (Exception ex)
-                {
-
-                }
-
+                orphan.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
+              ? $"{ _pictureStorageService.BaseUrl }{ _placeholderPic }"
+              : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
             });
+
             return Ok(orphansDto);
         }
 
-        [HttpGet("{id}", Name = "getOrphan")]
-        public async Task<ActionResult<OrphanDetailsDto>> GetOrphan(int id)
+        /// <summary>
+        /// Gets orphan details by orphan ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("orphanDetails/{id}", Name = "orphanDetails")]
+        public async Task<ActionResult<OrphanDetailsDTO>> GetOrphan(int id)
         {
             var orphan = await _dbContext.Orphans
                 .AsNoTracking()
-                .Include("Pictures")
                 .Include("Guardian")
                 .Include("Narrations")
                 .Include("Academics")
@@ -181,47 +142,31 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            var orphanDto = _mapper.Map<OrphanDetailsDto>(orphan);
+            var orphanDto = _mapper.Map<OrphanDetailsDTO>(orphan);
 
-            // Assign the profile pic
-            orphanDto.ProfilePic = orphanDto.Pictures
-                .FirstOrDefault(p => p.PictureID == orphanDto.ProfilePictureID);
+            // Assign the profile or placeholder pic
+            orphanDto.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
+                ? $"{ _pictureStorageService.BaseUrl }{ _placeholderPic }"
+                : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
 
-            if (orphanDto.ProfilePic == null)
-            {
-                orphanDto.ProfilePic = new PictureDto
-                {
-                    BaseUrl = _fileStorageService.BaseUrl,
-                    PictureFileName = _placeholderPic
-                };
-            }
-
-            if (orphanDto.ProfilePic.PictureFileName != null)
-            {
-                orphanDto.ProfilePicUrl = Path.Combine(_fileStorageService.BaseUrl, orphanDto.ProfilePic.PictureFileName);
-            }           
-
-
-            // Sets the base url for each pic
-            orphanDto.Pictures.ForEach(p =>
-            {
-                p.BaseUrl = _fileStorageService.BaseUrl;
-                p.SetAsProfilePic = p.PictureID == orphanDto.ProfilePictureID;
-            });
-                       
+            // Picture album for orphan
+            orphanDto.Pictures = await _pictureService.FindOrphanPicsByIdAsync(id);            
 
             // Include sponsors
             var sponsors = from os in _dbContext.OrphanSponsors
                            where os.OrphanID == orphanDto.OrphanID
                            select os.Sponsor;
-
-            orphanDto.Sponsors = _mapper.Map<List<SponsorDto>>(sponsors.ToList());
+            orphanDto.Sponsors = _mapper.Map<List<SponsorDTO>>(sponsors.ToList());
 
             return orphanDto;
         }
        
-
-        [HttpGet("getOrphanGuardian/{id}")]
+        /// <summary>
+        /// Gets the orphan's guardian.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("orphanGuardian/{id}")]
         public async Task<ActionResult<Guardian>> GetOrphanGuardian(int id)
         {
             var orphan = await _dbContext.Orphans.FirstOrDefaultAsync(o => o.OrphanID == id);
@@ -233,8 +178,13 @@ namespace LCMSMSWebApi.Controllers
             return guardian;
         }
 
-        [HttpGet("getOrphanSponsors/{id}")]
-        public async Task<ActionResult<List<SponsorDto>>> GetOrphanSponsors(int id)
+        /// <summary>
+        /// Gets the orphan's sponsors.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("orphanSponsors/{id}")]
+        public async Task<ActionResult<List<SponsorDTO>>> GetOrphanSponsors(int id)
         {
             var orphan = await _dbContext.Orphans
                 .FirstOrDefaultAsync(o => o.OrphanID == id);
@@ -246,84 +196,88 @@ namespace LCMSMSWebApi.Controllers
                            where os.OrphanID == orphan.OrphanID
                            select os.Sponsor;
 
-            return _mapper.Map<List<SponsorDto>>(sponsors.ToList());
+            return _mapper.Map<List<SponsorDTO>>(sponsors.ToList());
         }
 
-        [HttpGet("getOrphanPictures/{id}")]
-        public async Task<ActionResult<List<PictureDto>>> GetOrphanPictures(int id)
+        /// <summary>
+        /// Gets the picture album of the orphan.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("orphanPictures/{id}")]
+        public async Task<ActionResult<List<PictureDTO>>> GetOrphanPictures(int id)
         {
             var orphan = await _dbContext.Orphans
                 .FirstOrDefaultAsync(o => o.OrphanID == id);
 
-            if (orphan == null) return BadRequest();
+            if (orphan == null) return BadRequest("No orphan found.");
 
-            var pics = _dbContext.Pictures.Where(x => x.OrphanID == id).ToList();
-
-            var picDtos = _mapper.Map<List<PictureDto>>(pics);
-
-            _fileStorageService.SetConnectionString(StorageConnectionType.Photo);
-            // Sets the base url for each pic
-            picDtos.ForEach(p =>
-            {
-                p.BaseUrl = _fileStorageService.BaseUrl;
-                p.SetAsProfilePic = p.PictureID == orphan.ProfilePictureID;
-            });
+            var picDtos = _pictureService.FindOrphanPicsByIdAsync(id);
 
             return Ok(picDtos);
         }
 
-        [HttpGet("getOrphanPDFs/{id}")]
-        public async Task<ActionResult<List<PictureDto>>> GetOrphanPDFs(int id)
+        /// <summary>
+        /// Gets documents submitted by the orphan. Typcally, this will be PDF files.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("orphanDocuments/{id}")]
+        public async Task<ActionResult<List<PictureDTO>>> GetOrphanDocuments(int id)
         {
             var orphan = await _dbContext.Orphans
                 .FirstOrDefaultAsync(o => o.OrphanID == id);
 
             if (orphan == null) return BadRequest();
 
-            var pdfs = _dbContext.Documents
+            var documents = _dbContext.Documents
                 .Include("Sponsor")
                 .Where(x => x.OrphanID == id)
                 .ToList();
 
-            var pdfDtos = _mapper.Map<List<DocumentDTO>>(pdfs);
+            var docsDtos = _mapper.Map<List<DocumentDTO>>(documents);
 
-            _fileStorageService.SetConnectionString(StorageConnectionType.Document);
             // Sets the base url for each pic
-            pdfDtos.ForEach(p =>
+            docsDtos.ForEach(p =>
             {
-                p.BaseUrl = _fileStorageService.BaseUrl;
+                p.BaseUrl = _documentStorageService.BaseUrl;
             });
 
-            return Ok(pdfDtos);
+            return Ok(docsDtos);
         }
 
+        /// <summary>
+        /// Create new orphan record.
+        /// </summary>
+        /// <param name="orphanDto"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] OrphanDto orphanDto)
+        public async Task<ActionResult> Post([FromBody] OrphanDTO orphanDto)
         {
             var orphan = _mapper.Map<Orphan>(orphanDto);
-
+            orphan.EntryDate = DateTime.UtcNow;
             await _dbContext.Orphans.AddAsync(orphan);
             await _dbContext.SaveChangesAsync();
 
+            //
+            // TODO not sure if I'll use this or not.
+            //
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
 
-            orphanDto = _mapper.Map<OrphanDto>(orphan);
+            orphanDto = _mapper.Map<OrphanDTO>(orphan);
 
-            return new CreatedAtRouteResult("getOrphan", new { id = orphanDto.OrphanID }, orphanDto);
+            return new CreatedAtRouteResult("orphanDetails", new { id = orphanDto.OrphanID }, orphanDto);
         }
 
+        /// <summary>
+        /// Edit exising orphan record.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="orphanEditDto"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] OrphanEditDto orphanEditDto)
+        public async Task<ActionResult> Put(int id, [FromBody] OrphanEditDTO orphanEditDto)
         {
-            //
-            // TODO
-            // Make sure client sends complete object.
-            // Put request can be error prone. For example,
-            // if the dto is sent by the client and a property is null,
-            // this null value will overwrite the value in the db.
-            // This may or may not be what we want!
-            //
-
             var orphan = await _dbContext.Orphans.FirstOrDefaultAsync(x => x.OrphanID == id);
 
             if (orphan == null)
@@ -340,6 +294,12 @@ namespace LCMSMSWebApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Edit a signle property in an existing orphan record.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="patchOrphan"></param>
+        /// <returns></returns>
         [HttpPatch("{id:int}")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<Orphan> patchOrphan)
         {
@@ -355,6 +315,11 @@ namespace LCMSMSWebApi.Controllers
 
         }
 
+        /// <summary>
+        /// Delete an orphan record.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {

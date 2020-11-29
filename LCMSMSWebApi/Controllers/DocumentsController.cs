@@ -21,85 +21,93 @@ namespace LCMSMSWebApi.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IFileStorageService _fileStorageService;
+        private readonly IDocumentStorageService _documentsStorageService;
         private readonly IHostEnvironment _environment;
         private readonly string _containerName = "lcmsmspdfs";
 
         public DocumentsController(ApplicationDbContext context,
             IMapper mapper,
-            IFileStorageService fileStorageService,
+            IDocumentStorageService documentsStorageService,
             IHostEnvironment environment)
         {
             _context = context;
             _mapper = mapper;
-            _fileStorageService = fileStorageService;
+            _documentsStorageService = documentsStorageService;
             _environment = environment;
         }
 
+        /// <summary>
+        /// Gets all documents.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public ActionResult Get()
         {
             var docs = _context.Documents;
             return Ok(_mapper.Map<List<DocumentDTO>>(docs));
-        }        
+        }
 
+        /// <summary>
+        /// Gets all PDFs by orphan ID.
+        /// </summary>
+        /// <param name="orphanId"></param>
+        /// <returns></returns>
+        [HttpGet("pdfs/{orphanId}")]
+        public ActionResult GetPDFsByOrphanId(int orphanId)
+        {
+            var docs = _context.Documents.Where(x => x.OrphanID == orphanId);
+            return Ok(_mapper.Map<List<DocumentDTO>>(docs));
+        }
 
+        /// <summary>
+        /// Gets single PDF including Sponsor by PDF's ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("pdf/{id}")]
         public async Task<ActionResult> GetPdf(int id)
         {
-            var doc = await _context.Documents.Include("Sponsor").FirstOrDefaultAsync(x => x.DocumentID == id);
-            var docDto = _mapper.Map<DocumentDTO>(doc);
-            docDto.BaseUrl = _fileStorageService.BaseUrl;
-            return Ok(docDto);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Post([FromForm] IFormFile file)
+            var pdf = await _context.Documents.Include("Sponsor").FirstOrDefaultAsync(x => x.DocumentID == id);
+            var pdfDto = _mapper.Map<DocumentDTO>(pdf);
+            pdfDto.BaseUrl = _documentsStorageService.BaseUrl;
+            return Ok(pdfDto);
+        }       
+        
+        /// <summary>
+        /// Upload a new PDF document.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost("uploadPDF")]
+        public async Task<ActionResult> UploadPDF([FromForm] UploadPDFDTO dto)
         {
+            // Validation
+            if (dto.File == null || dto.File.Length == 0) return BadRequest("No file found.");
+            if (dto.OrphanID == 0) return BadRequest("No Orphan ID found.");
 
-            if (file == null || file.Length == 0) return BadRequest("No image file found.");
 
-            DocumentCreationDTO docCreation;
-            try
-            {
-                string dataStr = Request.Form[""].ToString();
-                docCreation = Newtonsoft.Json.JsonConvert.DeserializeObject<DocumentCreationDTO>(dataStr);
-                docCreation.Document = file;
-            }
-            catch (Exception ex)
-            {
-                // TODO log exception
-                return BadRequest("Not a valid request.");
-            }  
-
-            var extension = Path.GetExtension(docCreation.Document.FileName);
-
-            await using var memoryStream = new MemoryStream();
-            await docCreation.Document.CopyToAsync(memoryStream);
-            var fileBytes = memoryStream.ToArray();
-
+            // Save file to blob storage
+            var extension = Path.GetExtension(dto.File.FileName).ToLower();
             string contentType = "application/pdf";
-
-            _fileStorageService.SetConnectionString(StorageConnectionType.Document);
+            await using var memoryStream = new MemoryStream();
+            await dto.File.CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
             string documentUrl =
-                await _fileStorageService.SaveFile(fileBytes, extension, _containerName,
+                await _documentsStorageService.SaveFile(fileBytes, extension, _containerName,
                     contentType);
 
             var newDoc = new Document
             {
-                CreatedAt = DateTime.Now,
+                EntryDate = DateTime.UtcNow,
                 FileName = Path.GetFileName(documentUrl),
-                OrphanID = docCreation.OrphanID,
-                SponsorID = docCreation.SponsorID
+                OrphanID = dto.OrphanID,
+                SponsorID = dto.SponsorID
             };
 
             try
             {
                 await _context.Documents.AddAsync(newDoc);
-                await _context.SaveChangesAsync();              
-
-                //var documentDto = _mapper.Map<DocumentDTO>(newDoc);
-                //documentDto.BaseUrl = _fileStorageService.BaseUri;
+                await _context.SaveChangesAsync();
 
                 return Ok(documentUrl);
             }
@@ -108,9 +116,13 @@ namespace LCMSMSWebApi.Controllers
                 // TODO log exception
                 return BadRequest("Not a valid request.");
             }
-        }
+        }           
 
-
+        /// <summary>
+        /// Delete document.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {

@@ -45,7 +45,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<OrphanDto>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<OrphanDTO>>(dummyData);
 
             foreach (var obj in deserializedObj)
             {
@@ -74,7 +74,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<GuardianDto>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<GuardianDTO>>(dummyData);
 
             foreach (var obj in deserializedObj)
             {
@@ -100,7 +100,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<SponsorDto>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<SponsorDTO>>(dummyData);
 
             foreach (var obj in deserializedObj)
             {
@@ -130,7 +130,7 @@ namespace LCMSMSWebApi.Data
 
             string dummyData = System.IO.File.ReadAllText(filePath);
 
-            var deserializedObj = JsonConvert.DeserializeObject<List<NarrationDto>>(dummyData);
+            var deserializedObj = JsonConvert.DeserializeObject<List<NarrationDTO>>(dummyData);
 
             var orphans = _dbContext.Orphans.ToList();
             //var guardians = _dbContext.Guardians.ToList();

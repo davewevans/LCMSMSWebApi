@@ -74,10 +74,5 @@ namespace LCMSMSWebApi.Services
         {
             throw new NotImplementedException();
         }
-
-        public void SetConnectionString(StorageConnectionType storageType)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,44 +10,46 @@ using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.Services
 {
-    public enum StorageConnectionType
-    {
-        Photo,
-        Document
-    }
+    //public enum StorageConnectionType
+    //{
+    //    Photo,
+    //    Document
+    //}
 
-    public class AzureStorageService : IFileStorageService
+    public abstract class AzureStorageService
     {
-        private string connectionString;
+        protected string connectionString;
+        protected readonly IConfiguration configuration;
+        private readonly ILogger logger;
 
-        private readonly IConfiguration configuration;
+        public AzureStorageService(IConfiguration configuration, ILogger logger)
+        {
+            this.configuration = configuration;
+            this.logger = logger;
+        }
+
 
         public string BaseUrl { get; set; }
 
         // AzureDocumentStorage
         // AzurePhotoStorage
 
-        public AzureStorageService(IConfiguration configuration)
-        {
-            connectionString = configuration.GetConnectionString("AzurePhotoStorage");
-            BaseUrl = configuration.GetValue<string>("BlobBasePhotosUrl");
-            this.configuration = configuration;
-        }
+      
 
-        public void SetConnectionString(StorageConnectionType storageType)
-        {
-            switch (storageType)
-            {
-                case StorageConnectionType.Photo:
-                    connectionString = configuration.GetConnectionString("AzurePhotoStorage");
-                    BaseUrl = configuration.GetValue<string>("BlobBasePhotosUrl");
-                    break;
-                case StorageConnectionType.Document:
-                    connectionString = configuration.GetConnectionString("AzureDocumentStorage");
-                    BaseUrl = configuration.GetValue<string>("BlobBaseDocumentsUrl");
-                    break;
-            }
-        }
+        //public void SetConnectionString(StorageConnectionType storageType)
+        //{
+        //    switch (storageType)
+        //    {
+        //        case StorageConnectionType.Photo:
+        //            connectionString = configuration.GetConnectionString("AzurePhotoStorage");
+        //            BaseUrl = configuration.GetValue<string>("BlobBasePhotosUrl");
+        //            break;
+        //        case StorageConnectionType.Document:
+        //            connectionString = configuration.GetConnectionString("AzureDocumentStorage");
+        //            BaseUrl = configuration.GetValue<string>("BlobBaseDocumentsUrl");
+        //            break;
+        //    }
+        //}
 
         public async Task DeleteFile(string fileRoute, string containerName)
         {
@@ -65,7 +68,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                // TODO log exception
+                logger.LogError($"AzureStorageService.DeleteFile: { ex.Message }");
             }
 
         }
@@ -99,7 +102,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                // TODO log exception
+                logger.LogError($"AzureStorageService.SaveFile: { ex.Message }");
             }
 
             return null;
@@ -119,7 +122,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                // TODO log exception
+                logger.LogError($"AzureStorageService.GetUri: { ex.Message }");
                 return string.Empty;
             }
         }
@@ -140,7 +143,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                // TODO log exception
+                logger.LogError($"AzureStorageService.DownloadAsync: { ex.Message }");
                 return new byte[] { };
             }
 

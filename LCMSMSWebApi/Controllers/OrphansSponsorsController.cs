@@ -27,7 +27,7 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpPost("assignSponsor")]
-        public async Task<ActionResult> PostAssignment([FromBody] OrphanSponsorDto orphanSponsorDto)
+        public async Task<ActionResult> PostAssignment([FromBody] OrphanSponsorDTO orphanSponsorDto)
         {
 
             var newAssignment = new OrphanSponsor
@@ -46,7 +46,7 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [HttpPost("removeSponsor")]
-        public async Task<ActionResult> PostRemove([FromBody] OrphanSponsorDto orphanSponsorDto)
+        public async Task<ActionResult> PostRemove([FromBody] OrphanSponsorDTO orphanSponsorDto)
         {
             var recordToRemove = await _dbContext.OrphanSponsors.FirstOrDefaultAsync(x => x.OrphanID == orphanSponsorDto.OrphanID && x.SponsorID == orphanSponsorDto.SponsorID);
 

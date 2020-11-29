@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class SponsorDto
+    public class SponsorDTO
     {
         // TODO: What about sponsors in foreign countries?
         // We need to allow for entering addresses with no state.
@@ -35,6 +35,6 @@ namespace LCMSMSWebApi.DTOs
 
         public DateTime EntryDate { get; set; }
      
-        public List<OrphanSponsorDto> OrphanSponsors { get; set; }
+        public List<OrphanSponsorDTO> OrphanSponsors { get; set; }
     }
 }

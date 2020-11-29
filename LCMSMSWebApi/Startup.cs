@@ -58,9 +58,11 @@ namespace LCMSMSWebApi
 
             services.AddAutoMapper(typeof(Startup));
             
-            services.AddScoped<IFileStorageService, AzureStorageService>();
+            // services.AddScoped<IFileStorageService, AzureStorageService>();
+            services.AddScoped<IPictureStorageService, PictureStorageService>();
+            services.AddScoped<IDocumentStorageService, DocumentStorageService>();
 
-            services.AddScoped<ImageService>();
+            services.AddScoped<PictureService>();
 
             //SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("DefaultConnection"));
             //builder.UserID = Configuration["UserID"];

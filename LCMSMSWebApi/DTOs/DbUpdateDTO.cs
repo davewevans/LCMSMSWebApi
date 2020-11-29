@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class DbUpdateDto
+    public class DbUpdateDTO
     {
         public int DbUpdateId { get; set; }
 

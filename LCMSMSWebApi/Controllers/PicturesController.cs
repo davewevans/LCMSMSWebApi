@@ -25,8 +25,8 @@ namespace LCMSMSWebApi.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IFileStorageService _fileStorageService;
-        private readonly ImageService _imageService;
+        private readonly IPictureStorageService _pictureStorageService;
+        private readonly PictureService _pictureService;
         private readonly IHostEnvironment _environment;
         private readonly ILogger _logger;
         private readonly string _containerName = "lcmsmsblobdemo";        
@@ -35,15 +35,15 @@ namespace LCMSMSWebApi.Controllers
 
         public PicturesController(ApplicationDbContext context,
             IMapper mapper,
-            IFileStorageService fileStorageService,
-            ImageService imageService,
+            IPictureStorageService pictureStorageService,
+            PictureService pictureService,
             IHostEnvironment environment,
             ILogger logger)
         {
             _context = context;
             _mapper = mapper;
-            _fileStorageService = fileStorageService;
-            _imageService = imageService;
+            _pictureStorageService = pictureStorageService;
+            _pictureService = pictureService;
             _environment = environment;
             _logger = logger;
         }
@@ -52,7 +52,7 @@ namespace LCMSMSWebApi.Controllers
         public ActionResult Get()
         {
             var pictures = _context.Pictures;
-            return Ok(_mapper.Map<List<PictureDto>>(pictures));
+            return Ok(_mapper.Map<List<PictureDTO>>(pictures));
         }
       
 
@@ -60,8 +60,8 @@ namespace LCMSMSWebApi.Controllers
         public async Task<ActionResult> GetPicture(int id)
         {
             var picture = await _context.Pictures.SingleOrDefaultAsync(x => x.PictureID == id);
-            var pictureDto = _mapper.Map<PictureDto>(picture);
-            pictureDto.BaseUrl = _fileStorageService.BaseUrl;
+            var pictureDto = _mapper.Map<PictureDTO>(picture);
+            pictureDto.BaseUrl = _pictureStorageService.BaseUrl;
             return Ok(pictureDto);
         }
 
@@ -72,7 +72,7 @@ namespace LCMSMSWebApi.Controllers
             if (orphan == null) return NotFound("No orphan found with that id.");
             var profilePicDto = new ProfilePicDTO
             {
-                PictureURL = $"{_fileStorageService.BaseUrl}/{orphan.ProfilePicFileName}"
+                PictureURL = $"{_pictureStorageService.BaseUrl}/{orphan.ProfilePicFileName}"
             };
             return Ok(profilePicDto);
         }
@@ -81,22 +81,12 @@ namespace LCMSMSWebApi.Controllers
         public async Task<ActionResult> GetOrphanAlbumPictures(int id)
         {
             var orphan = await _context.Orphans.SingleOrDefaultAsync(x => x.OrphanID == id);
-            if (orphan == null) return NotFound("No orphan found with that id.");
+            if (orphan == null) return NotFound("No orphan found with that id.");  
+            
+            var pics = await _pictureService.FindOrphanPicsByIdAsync(id);
 
-            //var pictures = from oPic in _context.OrphanPictures
-            //               where oPic.OrphanID == id
-            //               select new {  }
-            return Ok();
-
-            // db.roles.Where(x => x.resource_id == moduleid && x.resource_type == "MyModule" && x.name == "member").SelectMany(x => x.users.Select(u=>u.id)).First();
-
-
-                           // many-to-many linq query
-                           //var query = from article in db.Articles
-                           //            where article.Categories.Any(c => c.Category_ID == cat_id)
-                           //            select article;
-
-        }
+            return Ok(pics);
+        }    
 
         [HttpPost("uploadPicture")]
         public async Task<ActionResult> UploadPicture([FromForm] PictureUploadDTO dto)
@@ -106,21 +96,21 @@ namespace LCMSMSWebApi.Controllers
             if (dto.OrphanID == 0) return BadRequest("No Orphan ID found.");   
 
             // Resize if too big. If not too big, then returns null and gets bytes.           
-            var pictureBytes = _imageService.ResizeFileIfTooBig(dto.File, _imageSizeMaxWidth)
-                               ?? await _imageService.GetImageBytesAsync(dto.File);
+            var pictureBytes = _pictureService.ResizeFileIfTooBig(dto.File, _imageSizeMaxWidth)
+                               ?? await _pictureService.GetImageBytesAsync(dto.File);
 
             // Optimize with TinyPNG API
-            pictureBytes = await _imageService.OptimizeWithTinyPngAsync(pictureBytes);            
+            pictureBytes = await _pictureService.OptimizeWithTinyPngAsync(pictureBytes);            
 
             // File storage service can use multiple connection strings (Photo & PDFs). This sets it.
-            _fileStorageService.SetConnectionString(StorageConnectionType.Photo);          
+            // _pictureStorageService.SetConnectionString(StorageConnectionType.Photo);          
 
             try
             {
                 // Save file to blob storage
-                var extension = Path.GetExtension(dto.File.FileName);
+                var extension = Path.GetExtension(dto.File.FileName).ToLower();
                 string picUrl =
-                    await _fileStorageService.SaveFile(pictureBytes, extension, _containerName,
+                    await _pictureStorageService.SaveFile(pictureBytes, extension, _containerName,
                         dto.File.ContentType);
 
                 var newPic = new Picture
@@ -161,21 +151,21 @@ namespace LCMSMSWebApi.Controllers
             if (dto.OrphanID == 0) return BadRequest("No Orphan ID found.");
 
             // Resize if too big. If not too big, then returns null and gets bytes.           
-            var pictureBytes = _imageService.ResizeFileIfTooBig(dto.File, _profilePicMaxWidth)
-                               ?? await _imageService.GetImageBytesAsync(dto.File);
+            var pictureBytes = _pictureService.ResizeFileIfTooBig(dto.File, _profilePicMaxWidth)
+                               ?? await _pictureService.GetImageBytesAsync(dto.File);
 
             // Optimize with TinyPNG API
-            pictureBytes = await _imageService.OptimizeWithTinyPngAsync(pictureBytes);
+            pictureBytes = await _pictureService.OptimizeWithTinyPngAsync(pictureBytes);
 
             // File storage service can use multiple connection strings (Photo & PDFs). This sets it.
-            _fileStorageService.SetConnectionString(StorageConnectionType.Photo);               
+            //_pictureStorageService.SetConnectionString(StorageConnectionType.Photo);               
 
             try
             {
                 // Save file to blob storage
                 var extension = Path.GetExtension(dto.File.FileName);
                 string picUrl =
-                    await _fileStorageService.SaveFile(pictureBytes, extension, _containerName,
+                    await _pictureStorageService.SaveFile(pictureBytes, extension, _containerName,
                         dto.File.ContentType);
 
                 // Save file name to Orphan entity
@@ -192,79 +182,23 @@ namespace LCMSMSWebApi.Controllers
             }
         }
 
-        //[HttpPut]
-        //public async Task<ActionResult> Put(int id, UpdateProfilePictureDTO updateProfilePicture)
-        //{
-        //    //
-        //    // Picture has already been uploaded to storage
-        //    // User has selected a different image to be the profile pic
-        //    //
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var exists = await _context.Pictures.AnyAsync(x => x.PictureID == id);
+            if (!exists)
+            {
+                return NotFound();
+            }
 
-        //    var picture = await _context.Pictures.SingleOrDefaultAsync(x => x.PictureID == id);
-        //    if (picture == null) return NotFound();
+            var picToDelete = _context.Pictures.SingleOrDefaultAsync(x => x.PictureID == id);
+            _context.Remove(picToDelete);
+            await _context.SaveChangesAsync();
 
-        //    byte[] pictureBytes =
-        //        await _fileStorageService.DownloadAsync(picture.PictureFileName, _containerName);
+            return NoContent();
+        }
 
-        //    IFormFile imageFile;
-        //    await using (var stream = new MemoryStream(pictureBytes))
-        //    {
-        //        imageFile = new FormFile(stream, 0, pictureBytes.Length, picture.PictureFileName, picture.PictureFileName);
-        //    }
 
-        //    byte[] pictureBytesResized = _imageService.ResizeIfTooBig(imageFile, ProfilePicMaxWidth) ?? pictureBytes;
-
-        //    var extension = Path.GetExtension(picture.PictureFileName);
-
-        //    if (pictureBytes.Length > pictureBytesResized.Length)
-        //    {
-        //        string picUri =
-        //            await _fileStorageService.SaveFile(pictureBytes, extension, _containerName,
-        //                imageFile.ContentType);
-
-        //        var newPic = new Picture
-        //        {
-        //            PictureFileName = Path.GetFileName(picUri),
-        //            Caption = updateProfilePicture.Caption,
-        //            EntryDate = DateTime.Now,
-        //            OrphanID = updateProfilePicture.OrphanID
-        //        };
-
-        //        await _context.Pictures.AddAsync(newPic);
-        //        await _context.SaveChangesAsync();
-
-        //        var orphan = await _context.Orphans.SingleOrDefaultAsync(x => x.OrphanID == newPic.OrphanID);
-        //        orphan.ProfilePictureID = newPic.PictureID;
-        //        await _context.SaveChangesAsync();
-
-        //    }
-        //    else // pic did not need resizing
-        //    {
-        //        var orphan = await _context.Orphans.SingleOrDefaultAsync(x => x.OrphanID == picture.OrphanID);
-
-        //        // Sets the pic as the profile pic
-        //        orphan.ProfilePictureID = picture.PictureID;
-        //        await _context.SaveChangesAsync();
-        //    }
-
-        //    return NoContent();
-        //}
-
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> Delete(int id)
-        //{
-        //    var exists = await _context.Pictures.AnyAsync(x => x.PictureID == id);
-        //    if (!exists)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var picToDelete = _context.Pictures.SingleOrDefaultAsync(x => x.PictureID == id);
-        //    _context.Remove(picToDelete);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
 
     }
 }

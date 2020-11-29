@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using LCMSMSWebApi.Data;
+using LCMSMSWebApi.DTOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -7,7 +10,9 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TinifyAPI;
@@ -15,9 +20,18 @@ using Exception = TinifyAPI.Exception;
 
 namespace LCMSMSWebApi.Services
 {
-    public class ImageService
+    public class PictureService
     {
-        public ImageService(IConfiguration configuration)
+        private readonly ApplicationDbContext context;
+        private readonly IPictureStorageService pictureStorageService;
+
+        public PictureService(ApplicationDbContext context, IPictureStorageService pictureStorageService)
+        {
+            this.context = context;
+            this.pictureStorageService = pictureStorageService;
+        }
+
+        public PictureService(IConfiguration configuration)
         {
             Tinify.Key = configuration.GetValue<string>("TinyPngApiKey");
         }       
@@ -144,6 +158,22 @@ namespace LCMSMSWebApi.Services
                 // TODO log exception
                 return pictureBytes;
             }
+        }
+
+        public async Task<List<PictureDTO>> FindOrphanPicsByIdAsync(int id)
+        {
+            var pics = from oPic in context.OrphanPictures
+                       where oPic.OrphanID == id
+                       select new PictureDTO
+                       {
+                           PictureID = oPic.Picture.PictureID,
+                           PictureFileName = oPic.Picture.PictureFileName,
+                           Caption = oPic.Picture.Caption,
+                           OrphanID = id,
+                           BaseUrl = pictureStorageService.BaseUrl                          
+                       };
+
+            return await pics.ToListAsync();
         }
 
     }

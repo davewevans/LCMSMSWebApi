@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class AcademicDto
+    public class AcademicDTO
     {
         public int AcademicID { get; set; }
         public string Grade { get; set; }

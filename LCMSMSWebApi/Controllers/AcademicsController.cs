@@ -36,13 +36,13 @@ namespace LCMSMSWebApi.Controllers
         public IActionResult Get()
         {
             var academics = _dbContext.Academics.ToList();
-            var academicsDto = _mapper.Map<List<AcademicDto>>(academics);
+            var academicsDto = _mapper.Map<List<AcademicDTO>>(academics);
 
             return Ok(academicsDto);
         }
 
         [HttpGet("{id}", Name = "getAcademic")]
-        public async Task<ActionResult<AcademicDto>> Get(int id)
+        public async Task<ActionResult<AcademicDTO>> Get(int id)
         {
             var academic = await _dbContext.Academics.FirstOrDefaultAsync(x => x.AcademicID == id);
 
@@ -51,20 +51,20 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<AcademicDto>(academic);
+            return _mapper.Map<AcademicDTO>(academic);
         }
 
         [HttpGet("orphan/{orphanId}", Name = "GetOrphanAcademics")]
         public IActionResult GetOrphanAcademics(int orphanId)
         {
             var academics = _dbContext.Academics.Where(x => x.OrphanID == orphanId).ToList();
-            var academicsDto = _mapper.Map<List<AcademicDto>>(academics);
+            var academicsDto = _mapper.Map<List<AcademicDTO>>(academics);
 
             return Ok(academicsDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] AcademicDto academicDto)
+        public async Task<ActionResult> Post([FromBody] AcademicDTO academicDto)
         {
             var academic = _mapper.Map<Academic>(academicDto);
 
@@ -73,13 +73,13 @@ namespace LCMSMSWebApi.Controllers
 
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
 
-            academicDto = _mapper.Map<AcademicDto>(academic);
+            academicDto = _mapper.Map<AcademicDTO>(academic);
 
             return new CreatedAtRouteResult("getAcademic", new { id = academicDto.AcademicID }, academicDto);
         }
 
         [HttpPost("postinlineedit")]
-        public async Task<ActionResult> PostInlineEdit([FromBody] AcademicDto academicDto)
+        public async Task<ActionResult> PostInlineEdit([FromBody] AcademicDTO academicDto)
         {
             var academic = _dbContext.Academics.FirstOrDefault(a => a.AcademicID == academicDto.AcademicID);
 

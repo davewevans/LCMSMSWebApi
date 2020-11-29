@@ -36,13 +36,13 @@ namespace LCMSMSWebApi.Controllers
         public IActionResult Get()
         {
             var sponsors = _dbContext.Sponsors.ToList();
-            var sponsorsDto = _mapper.Map<List<SponsorDto>>(sponsors);
+            var sponsorsDto = _mapper.Map<List<SponsorDTO>>(sponsors);
 
             return Ok(sponsorsDto);
         }
 
         [HttpGet("{id}", Name = "getSponsor")]
-        public async Task<ActionResult<SponsorDto>> Get(int id)
+        public async Task<ActionResult<SponsorDTO>> Get(int id)
         {
             var sponsor = await _dbContext.Sponsors.FirstOrDefaultAsync(x => x.SponsorID == id);
 
@@ -51,11 +51,11 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<SponsorDto>(sponsor);
+            return _mapper.Map<SponsorDTO>(sponsor);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] SponsorDto sponsorDto)
+        public async Task<ActionResult> Post([FromBody] SponsorDTO sponsorDto)
         {
             var sponsor = _mapper.Map<Sponsor>(sponsorDto);
 
@@ -64,7 +64,7 @@ namespace LCMSMSWebApi.Controllers
 
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
 
-            sponsorDto = _mapper.Map<SponsorDto>(sponsor);
+            sponsorDto = _mapper.Map<SponsorDTO>(sponsor);
 
             return new CreatedAtRouteResult("getSponsor", new { id = sponsorDto.SponsorID }, sponsorDto);
         }

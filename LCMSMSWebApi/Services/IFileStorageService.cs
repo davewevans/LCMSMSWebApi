@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.Services
 {
@@ -18,8 +15,5 @@ namespace LCMSMSWebApi.Services
         string GetUri(string fileName, string containerName);
 
         Task<byte[]> DownloadAsync(string fileName, string containerName);
-
-        void SetConnectionString(StorageConnectionType storageType);
-
     }
 }

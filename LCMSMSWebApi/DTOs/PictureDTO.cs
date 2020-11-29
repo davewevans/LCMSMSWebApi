@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LCMSMSWebApi.Validations;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class PictureDto
+    public class PictureDTO
     {       
-        public int PictureID { get; set; }
-
-        [FileSizeValidator(MaxFileSizeInMbs: 10)]
-        [ContentTypeValidator(ContentType.Image)]
-        public IFormFile Picture { get; set; }
+        public int PictureID { get; set; }     
 
         public string PictureFileName { get; set; }
 

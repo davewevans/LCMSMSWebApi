@@ -36,13 +36,13 @@ namespace LCMSMSWebApi.Controllers
         public IActionResult Get()
         {
             var narrations = _dbContext.Narrations.ToList();
-            var narrationsDto = _mapper.Map<List<NarrationDto>>(narrations);
+            var narrationsDto = _mapper.Map<List<NarrationDTO>>(narrations);
 
             return Ok(narrationsDto);
         }
 
         [HttpGet("{id}", Name = "GetNarration")]
-        public async Task<ActionResult<NarrationDto>> Get(int id)
+        public async Task<ActionResult<NarrationDTO>> Get(int id)
         {
             var narration = await _dbContext.Narrations.FirstOrDefaultAsync(x => x.NarrationID == id);
 
@@ -51,14 +51,14 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<NarrationDto>(narration);
+            return _mapper.Map<NarrationDTO>(narration);
         }
 
         [HttpGet("orphan/{orphanId}", Name = "GetOrphanNarrations")]
         public IActionResult GetOrphanNarrations(int orphanId)
         {
             var narrations = _dbContext.Narrations.Where(x => x.OrphanID == orphanId).ToList();
-            var narrationsDto = _mapper.Map<List<NarrationDto>>(narrations);
+            var narrationsDto = _mapper.Map<List<NarrationDTO>>(narrations);
 
             return Ok(narrationsDto);
         }
@@ -67,13 +67,13 @@ namespace LCMSMSWebApi.Controllers
         public IActionResult GetGuardianNarrations(int guardianId)
         {
             var narrations = _dbContext.Narrations.Where(x => x.GuardianID == guardianId).ToList();
-            var narrationsDto = _mapper.Map<List<NarrationDto>>(narrations);
+            var narrationsDto = _mapper.Map<List<NarrationDTO>>(narrations);
 
             return Ok(narrationsDto);
         }      
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] NarrationDto narrationDto)
+        public async Task<ActionResult> Post([FromBody] NarrationDTO narrationDto)
         {
             var narration = _mapper.Map<Narration>(narrationDto);
 
@@ -82,7 +82,7 @@ namespace LCMSMSWebApi.Controllers
 
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
 
-            narrationDto = _mapper.Map<NarrationDto>(narration);
+            narrationDto = _mapper.Map<NarrationDTO>(narration);
 
             return new CreatedAtRouteResult("GetNarration", new { id = narrationDto.NarrationID }, narrationDto);
         }

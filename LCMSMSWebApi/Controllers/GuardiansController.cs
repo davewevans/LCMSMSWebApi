@@ -36,13 +36,13 @@ namespace LCMSMSWebApi.Controllers
         public IActionResult Get()
         {
             var guardians = _dbContext.Guardians.ToList();
-            var guradiansDto = _mapper.Map<List<GuardianDto>>(guardians);
+            var guradiansDto = _mapper.Map<List<GuardianDTO>>(guardians);
 
             return Ok(guradiansDto);
         }
 
         [HttpGet("{id}", Name = "getGuardian")]
-        public async Task<ActionResult<GuardianDto>> Get(int id)
+        public async Task<ActionResult<GuardianDTO>> Get(int id)
         {
             var guardian = await _dbContext.Guardians.FirstOrDefaultAsync(x => x.GuardianID == id);
 
@@ -51,11 +51,11 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<GuardianDto>(guardian);
+            return _mapper.Map<GuardianDTO>(guardian);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] GuardianDto guardianDto)
+        public async Task<ActionResult> Post([FromBody] GuardianDTO guardianDto)
         {
             var guardian = _mapper.Map<Guardian>(guardianDto);
 
@@ -64,7 +64,7 @@ namespace LCMSMSWebApi.Controllers
 
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
 
-            guardianDto = _mapper.Map<GuardianDto>(guardian);
+            guardianDto = _mapper.Map<GuardianDTO>(guardian);
 
             return new CreatedAtRouteResult("getGuardian", new { id = guardianDto.GuardianID }, guardianDto);
         }

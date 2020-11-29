@@ -30,23 +30,21 @@ namespace LCMSMSWebApi.DTOs
 
         public int? GuardianID { get; set; }
 
-        public int? ProfilePictureID { get; set; }
+        public string ProfilePicFileName { get; set; }
 
-        public string ProfilePicUrl { get; set; }
+        public string ProfilePicUrl { get; set; }        
 
-        public PictureDto ProfilePic { get; set; }
+        public List<PictureDTO> Pictures { get; set; }
 
-        public List<PictureDto> Pictures { get; set; }
+        public List<OrphanSponsorDTO> OrphanSponsors { get; set; }
 
-        public List<OrphanSponsorDto> OrphanSponsors { get; set; }
+        public List<SponsorDTO> Sponsors { get; set; }
 
-        public List<SponsorDto> Sponsors { get; set; }
+        public GuardianDTO Guardian { get; set; }
 
-        public GuardianDto Guardian { get; set; }
+        public List<NarrationDTO> Narrations { get; set; }
 
-        public List<NarrationDto> Narrations { get; set; }
-
-        public List<AcademicDto> Academics { get; set; }
+        public List<AcademicDTO> Academics { get; set; }
 
         public List<DocumentDTO> Documents { get; set; }
     }

@@ -4,15 +4,17 @@ using System;
 
 namespace LCMSMSWebApi.DTOs
 {
-    public class DocumentCreationDTO
+    public class UploadPDFDTO
     {
-        [FileSizeValidator(MaxFileSizeInMbs: 10)]
-        [ContentTypeValidator(ContentType.PDF)]
-        public IFormFile Document { get; set; }
+        [FileSizeValidator(MaxFileSizeInMbs: 50)]
+        [ContentTypeValidator(Validations.ContentType.PDF)]
+        public IFormFile File { get; set; }
 
         public string FileName { get; set; }
 
-        public string BaseUri { get; set; }
+        public string BaseUrl { get; set; }
+
+        public string ContentType { get; set; }
 
         public DateTime EntryDate { get; set; }
 
