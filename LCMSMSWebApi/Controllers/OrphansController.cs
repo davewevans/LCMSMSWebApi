@@ -55,7 +55,7 @@ namespace LCMSMSWebApi.Controllers
         [HttpGet("allOrphans")]
         public async Task<IActionResult> GetAll()
         {
-            List<OrphanDetailsDTO> orphansDto = new List<OrphanDetailsDTO>();
+            List<OrphanDTO> orphansDto = new List<OrphanDTO>();
 
             var orphans = await _dbContext.Orphans
                .AsNoTracking()
@@ -65,7 +65,7 @@ namespace LCMSMSWebApi.Controllers
                .OrderBy(o => o.LastName)
                .ToListAsync();
 
-            orphansDto = _mapper.Map<List<OrphanDetailsDTO>>(orphans);
+            orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
 
             // Set profile pic url or placeholder url for each orphan
             orphansDto.ForEach(orphan =>
@@ -83,10 +83,10 @@ namespace LCMSMSWebApi.Controllers
         /// </summary>
         /// <param name="orphanParameters"></param>
         /// <returns></returns>
-        [HttpGet("orphans")]
+        [HttpGet]
         public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters = null)
         {
-            List<OrphanDetailsDTO> orphansDto = new List<OrphanDetailsDTO>();
+            List<OrphanDTO> orphansDto = new List<OrphanDTO>();
 
             var orphans = await PagedList<Orphan>
                 .ToPagedListAsync(_dbContext.Orphans
@@ -109,8 +109,9 @@ namespace LCMSMSWebApi.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
 
-            orphansDto = _mapper.Map<List<OrphanDetailsDTO>>(orphans);
+            orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
 
+            // Set profile or placeholder pic for each orphan
             orphansDto.ForEach(orphan =>
             {
                 orphan.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)

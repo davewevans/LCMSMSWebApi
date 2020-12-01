@@ -36,7 +36,7 @@ namespace LCMSMSWebApi.Controllers
             this.configuration = configuration;
         }
 
-        [Authorize(Roles ="Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost, Route("Create")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserCreationDTO newUser)
         {
@@ -45,7 +45,8 @@ namespace LCMSMSWebApi.Controllers
                 UserName = newUser.Email,
                 Email = newUser.Email,
                 FirstName = newUser.FirstName ?? "",
-                LastName = newUser.LastName ?? ""
+                LastName = newUser.LastName ?? "",
+                EntryDate = DateTime.UtcNow
             };
             var result = await userManager.CreateAsync(user, newUser.Password);
 
@@ -67,26 +68,34 @@ namespace LCMSMSWebApi.Controllers
             {
                 return BadRequest("Username or password is invalid. Or no first name was given.");
             }
-        }  
-          
+        }
+
 
         [HttpPost, Route("Login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserInfoDTO userInfo)
         {
-            var result = await signInManager.PasswordSignInAsync(
-                userInfo.Email,
-                userInfo.Password,
-                isPersistent: false,
-                lockoutOnFailure: false);
+            try
+            {
+                var result = await signInManager.PasswordSignInAsync(
+                              userInfo.Email,
+                              userInfo.Password,
+                              isPersistent: false,
+                              lockoutOnFailure: false);
 
-            if (result.Succeeded)
-            {
-                return await BuildToken(userInfo);
+                if (result.Succeeded)
+                {
+                    return await BuildToken(userInfo);
+                }
+                else
+                {
+                    return BadRequest("Username or password is incorrect.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("Username or password is incorrect.");
-            }
+                var msg = ex.Message;
+                return BadRequest(ex.Message);
+            }           
         }
 
         [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -101,7 +110,7 @@ namespace LCMSMSWebApi.Controllers
                 return Ok("Password has been reset.");
             }
             return BadRequest("Invalid password.");
-            
+
         }
 
         [HttpGet, Route("RenewToken")]
@@ -119,7 +128,7 @@ namespace LCMSMSWebApi.Controllers
         private async Task<UserToken> BuildToken(UserInfoDTO userInfo)
         {
             var claims = new List<Claim>
-            {               
+            {
                 new Claim(ClaimTypes.Email, userInfo.Email),
             };
 

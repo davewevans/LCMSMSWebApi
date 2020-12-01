@@ -5,7 +5,7 @@ namespace LCMSMSWebApi.Services
 {
     public class PictureStorageService : AzureStorageService, IPictureStorageService
     {
-        public PictureStorageService(IConfiguration configuration, ILogger logger) : base(configuration, logger)
+        public PictureStorageService(IConfiguration configuration) : base(configuration)
         {
             base.connectionString = configuration.GetConnectionString("AzurePhotoStorage");
             BaseUrl = configuration.GetValue<string>("BlobBasePhotosUrl");

@@ -43,117 +43,43 @@ namespace LCMSMSWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(policy =>
-            {
-                policy.AddPolicy("CorsPolicy", options => options
-                    .AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .WithExposedHeaders("totalAmountPages"));                    
-            });
+            services.ConfigureCorsPolicy();
 
-            services.AddControllers()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            services.ConfigureAddControllers();                      
 
             services.AddAutoMapper(typeof(Startup));
-            
-            // services.AddScoped<IFileStorageService, AzureStorageService>();
-            services.AddScoped<IPictureStorageService, PictureStorageService>();
-            services.AddScoped<IDocumentStorageService, DocumentStorageService>();
+
+            services.ConfigureFileStorageServices();            
 
             services.AddScoped<PictureService>();
 
-            //SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("DefaultConnection"));
-            //builder.UserID = Configuration["UserID"];
-            //builder.Password = Configuration["Password"]; 
-
-            //services.AddDbContext<LocalApplicationDbContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("LocalDefaultConnection")));
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-               options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-
-            // IdentityServer 4 configuration
-            //services.AddDefaultIdentity<IdentityUser>(options =>
-            //{
-            //    options.SignIn.RequireConfirmedAccount = false;
-            //})
-            //    .AddRoles<IdentityRole>()
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
-
-            //services.AddIdentityServer()
-            //    .AddApiAuthorization<IdentityUser, ApplicationDbContext>()
-            //    .AddProfileService<IdentityProfileService>();
-
-            //services.AddAuthentication()
-            //    .AddIdentityServerJwt();
+            services.ConfigureAddDbContext(Configuration);
 
             services.AddControllersWithViews();
+
             services.AddRazorPages();
 
+            services.ConfigureAddIdentity();          
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+            services.ConfigureIdentityOptions();
 
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Default Password settings.
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 6;
-                options.Password.RequiredUniqueChars = 1;
-            });
-
-            // services.AddScoped<IAuthService, AuthService>();
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-              .AddJwtBearer(options =>
-              {
-                  options.TokenValidationParameters = new TokenValidationParameters
-                  {
-                      ValidateIssuer = false,
-                      ValidateAudience = false,
-                      ValidateLifetime = true,
-                      ValidateIssuerSigningKey = true,
-                      ValidIssuer = Configuration["Tokens:Issuer"],
-                      ValidAudience = Configuration["Tokens:Issuer"],
-                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"])),
-                      ClockSkew = TimeSpan.Zero,
-                  };
-              });
-
+            services.ConfigureAddAuthentication(Configuration);
 
             //
-            // TODO remove for productions
-            // Paul's db
+            // TODO not using this yet
             //
-            //builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("PaulConnection"));
-            //builder.UserID = Configuration["PaulUserID"];
-            //builder.Password = Configuration["PaulPassword"];
-            //services.AddDbContext<PaulDbContext>(option =>
-            //    option.UseSqlServer(Configuration.GetConnectionString("PaulConnection")));
+            services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();
 
-            services.AddScoped<ISyncDatabasesService, SyncDatabasesService>();         
-
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "LCMSMS API", Version = "v1", });
-            });
+            services.ConfigureSwagger();          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
+            }            
 
             app.UseSwagger();
 
@@ -162,8 +88,7 @@ namespace LCMSMSWebApi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "LCMSMS API");
             });
 
-            app.UseHttpsRedirection();           
-
+            app.UseHttpsRedirection();  
             
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();

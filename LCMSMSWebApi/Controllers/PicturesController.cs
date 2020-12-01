@@ -37,15 +37,13 @@ namespace LCMSMSWebApi.Controllers
             IMapper mapper,
             IPictureStorageService pictureStorageService,
             PictureService pictureService,
-            IHostEnvironment environment,
-            ILogger logger)
+            IHostEnvironment environment)
         {
             _context = context;
             _mapper = mapper;
             _pictureStorageService = pictureStorageService;
             _pictureService = pictureService;
             _environment = environment;
-            _logger = logger;
         }
 
         [HttpGet]
@@ -138,7 +136,7 @@ namespace LCMSMSWebApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Pictures.UploadPicture: {ex.Message}");
+                //_logger.LogError($"Pictures.UploadPicture: {ex.Message}");
                 return BadRequest("Not a valid request.");
             }          
         }
@@ -177,7 +175,7 @@ namespace LCMSMSWebApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Pictures.UploadProfilePicture: {ex.Message}");
+                //_logger.LogError($"Pictures.UploadProfilePicture: {ex.Message}");
                 return BadRequest("Not a valid request.");
             }
         }

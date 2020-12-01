@@ -20,12 +20,12 @@ namespace LCMSMSWebApi.Services
     {
         protected string connectionString;
         protected readonly IConfiguration configuration;
-        private readonly ILogger logger;
+        //private readonly ILogger logger;
 
-        public AzureStorageService(IConfiguration configuration, ILogger logger)
+        public AzureStorageService(IConfiguration configuration)
         {
             this.configuration = configuration;
-            this.logger = logger;
+            //this.logger = logger;
         }
 
 
@@ -68,7 +68,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"AzureStorageService.DeleteFile: { ex.Message }");
+                //logger.LogError($"AzureStorageService.DeleteFile: { ex.Message }");
             }
 
         }
@@ -102,7 +102,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"AzureStorageService.SaveFile: { ex.Message }");
+                //logger.LogError($"AzureStorageService.SaveFile: { ex.Message }");
             }
 
             return null;
@@ -122,7 +122,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"AzureStorageService.GetUri: { ex.Message }");
+                //logger.LogError($"AzureStorageService.GetUri: { ex.Message }");
                 return string.Empty;
             }
         }
@@ -143,7 +143,7 @@ namespace LCMSMSWebApi.Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"AzureStorageService.DownloadAsync: { ex.Message }");
+                //logger.LogError($"AzureStorageService.DownloadAsync: { ex.Message }");
                 return new byte[] { };
             }
 

@@ -38,6 +38,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="wwwroot\DummyData\guardians_mock_data.json" />
+    <Content Include="wwwroot\DummyData\narrations_mock_data.json" />
+    <Content Include="wwwroot\DummyData\orphans_mock_data.json" />
+    <Content Include="wwwroot\DummyData\pictures_mock_data.json" />
+    <Content Include="wwwroot\DummyData\sponsors_mock_data.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="enums\" />
   </ItemGroup>
 

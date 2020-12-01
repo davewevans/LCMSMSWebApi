@@ -36,8 +36,6 @@ namespace LCMSMSWebApi.Models
 
         public int? GuardianID { get; set; }
 
-        //public int? ProfilePictureID { get; set; }
-
         public string ProfilePicFileName { get; set; }
 
         public Guardian Guardian { get; set; }

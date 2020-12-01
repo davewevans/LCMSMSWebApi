@@ -29,9 +29,9 @@ namespace LCMSMSWebApi.DTOs
 
         public int? GuardianID { get; set; }
 
-        public int? ProfilePictureID { get; set; }
+        public string ProfilePicFileName { get; set; }
 
-        public PictureDTO ProfilePic { get; set; }
+        public string ProfilePicUrl { get; set; }
 
         public List<PictureDTO> Pictures { get; set; }
 

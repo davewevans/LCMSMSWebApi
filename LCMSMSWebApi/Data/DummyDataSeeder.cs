@@ -26,14 +26,16 @@ namespace LCMSMSWebApi.Data
             _env = env;
         }
 
+
+
         public void SeedAllDummyData()
         {
-            SeedOrphans();
-            SeedGuardians();
-            SeedSponsors();
-            SeedNarrations();
+            //SeedOrphans();
+            //SeedGuardians();
+            //SeedSponsors();
+            //SeedNarrations();
             // SeedPictures();
-            SeedOrphanSponsors();
+            //SeedOrphanSponsors();
         }
 
         public void SeedOrphans()
@@ -242,8 +244,8 @@ namespace LCMSMSWebApi.Data
 
         private static DateTime GetRandomDate(int startYear)
         {
-            int year = Random.Next(startYear, DateTime.Now.Year + 1);
-            int month = Random.Next(1, DateTime.Now.Month);
+            int year = Random.Next(startYear, DateTime.UtcNow.Year + 1);
+            int month = Random.Next(1, DateTime.UtcNow.Month);
             int day = Random.Next(1, DateTime.DaysInMonth(year, month) + 1);
 
             return new DateTime(year, month, day);

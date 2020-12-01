@@ -16,7 +16,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TinifyAPI;
-using Exception = TinifyAPI.Exception;
 
 namespace LCMSMSWebApi.Services
 {
@@ -25,16 +24,13 @@ namespace LCMSMSWebApi.Services
         private readonly ApplicationDbContext context;
         private readonly IPictureStorageService pictureStorageService;
 
-        public PictureService(ApplicationDbContext context, IPictureStorageService pictureStorageService)
+        public PictureService(ApplicationDbContext context, 
+            IPictureStorageService pictureStorageService, IConfiguration configuration)
         {
             this.context = context;
             this.pictureStorageService = pictureStorageService;
-        }
-
-        public PictureService(IConfiguration configuration)
-        {
             Tinify.Key = configuration.GetValue<string>("TinyPngApiKey");
-        }       
+        }      
 
         public byte[] ResizeFileIfTooBig(IFormFile imageFile, int maxWidth)
         {
@@ -58,7 +54,7 @@ namespace LCMSMSWebApi.Services
                 return output.ToArray();
                 
             }
-            catch (Exception ex)
+            catch (TinifyAPI.Exception ex)
             {
                 // TODO log exception
                 return null;
@@ -153,7 +149,7 @@ namespace LCMSMSWebApi.Services
                 //
                 return await Tinify.FromBuffer(pictureBytes).ToBuffer();
             }
-            catch (Exception ex)
+            catch (TinifyAPI.Exception ex)
             {
                 // TODO log exception
                 return pictureBytes;
