@@ -9,16 +9,19 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LCMSMSWebApi.enums;
 
 namespace LCMSMSWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/orphans")]
     [ApiController]
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [AllowAnonymous]
@@ -30,6 +33,8 @@ namespace LCMSMSWebApi.Controllers
         private readonly IPictureStorageService _pictureStorageService;
         private readonly IDocumentStorageService _documentStorageService;
         private readonly PictureService _pictureService;
+        private readonly OrphanService _orphanService;
+        private readonly ILogger<OrphansController> _logger;
         private readonly string _placeholderPic = "no_image_found_300x300.jpg";
         
 
@@ -38,7 +43,9 @@ namespace LCMSMSWebApi.Controllers
             ISyncDatabasesService syncDatabasesService,
             IPictureStorageService pictureStorageService,
             IDocumentStorageService documentStorageService,
-            PictureService pictureService)
+            PictureService pictureService,
+            OrphanService orphanService,
+            ILogger<OrphansController> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -46,10 +53,12 @@ namespace LCMSMSWebApi.Controllers
             _pictureStorageService = pictureStorageService;
             _documentStorageService = documentStorageService;
             _pictureService = pictureService;
+            _orphanService = orphanService;
+            _logger = logger;
         }
 
         /// <summary>
-        /// Gets all orphan records with no pagination, sorting, or filtering.
+        /// Gets all orphan records.
         /// </summary>
         /// <returns></returns>
         [HttpGet("allOrphans")]
@@ -86,40 +95,88 @@ namespace LCMSMSWebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] OrphanParameters orphanParameters = null)
         {
-            List<OrphanDTO> orphansDto = new List<OrphanDTO>();
+            // Find orphans based on parameters in query string (pagination, filter, sort, etc.)
+            var orphans = await _orphanService.GetOrphansPagedListAsync(orphanParameters);
 
-            var orphans = await PagedList<Orphan>
-                .ToPagedListAsync(_dbContext.Orphans
-                .AsNoTracking()                
-                .Include("Guardian")
-                .Include("Narrations")
-                .Include("Academics")
-                .OrderBy(o => o.LastName),
-                orphanParameters.PageNumber, orphanParameters.PageSize);
+            // Pagination meta data for response
+            var metaData = _orphanService.GetMetaData(orphans);
 
-            var metaData = new
-            {
-                orphans.TotalCount,
-                orphans.PageSize,
-                orphans.PageNumber,
-                orphans.HasNext,
-                orphans.HasPrevious
-            };
-
+            // Add pagination meta data to response header
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metaData));
 
-            orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
+            var orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
 
             // Set profile or placeholder pic for each orphan
-            orphansDto.ForEach(orphan =>
-            {
-                orphan.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
-              ? $"{ _pictureStorageService.BaseUrl }{ _placeholderPic }"
-              : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
-            });
+            _orphanService.SetProfilePicUrlForOrphans(orphansDto);
 
             return Ok(orphansDto);
+        }
+
+        /// <summary>
+        /// Get orphan records for the Syncfusion DataGrid
+        /// ref: https://www.syncfusion.com/forums/154196/databind-to-paging-rest-api
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("orphansSFDataGrid")]
+        public object GetOrphansSFDataGrid()
+        {
+            var data = _dbContext.Orphans.AsQueryable();
+            var count = data.Count();
+            var queryString = Request.Query;
+
+            StringValues Skip, Take, SearchTerm, ColumnName, SortDirection;
+
+            int skip = 0;
+            int top = 20;
+            int sortDirection = 0;
+
+            string searchTerm = "";
+            string columnName = "";
+            
+            bool descending = false;
+
+            // Parse query string sent from Syncfusion DataGrid
+            if (queryString.Keys.Contains("$inlinecount"))
+            {             
+                skip = queryString.TryGetValue("$skip", out Skip) ? Convert.ToInt32(Skip[0]) : 0;
+                top = queryString.TryGetValue("$top", out Take) ? Convert.ToInt32(Take[0]) : data.Count();
+                searchTerm = queryString.TryGetValue("SearchTerm", out SearchTerm) ? SearchTerm[0] : "";
+                columnName = queryString.TryGetValue("ColumnName", out ColumnName) ? ColumnName[0] : "";
+                sortDirection = queryString.TryGetValue("SortDirection", out SortDirection) ? Convert.ToInt32(SortDirection[0]) : 0;
+                descending = (SortingDirection)sortDirection == SortingDirection.Descending ? true : false;
+            }
+
+            List<Orphan> orphans = new List<Orphan>();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                orphans = (from orphan in data
+                          where orphan.FirstName.ToLower().Contains(searchTerm.ToLower()) ||
+                          orphan.MiddleName.ToLower().Contains(searchTerm.ToLower()) ||
+                          orphan.LastName.ToLower().Contains(searchTerm.ToLower()) ||
+                          orphan.ProfileNumber.ToLower().Contains(searchTerm.ToLower())
+                           select orphan)
+                           .Skip(skip)
+                           .Take(top)
+                           .OrderByDynamic(columnName, descending)
+                           .ToList();
+            }
+            else // No search term 
+            {
+                orphans = data
+                    .Skip(skip)
+                    .Take(top)
+                    .OrderByDynamic(columnName, descending)
+                    .ToList();
+            }
+            
+            var orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
+
+            // Set profile or placeholder pic for each orphan
+            _orphanService.SetProfilePicUrlForOrphans(orphansDto);
+
+            return new { Items = orphansDto, Count = count };
         }
 
         /// <summary>

@@ -1,7 +1,8 @@
 ﻿namespace LCMSMSWebApi.Models
 {
-    public class OrphanParameters : QueryStringParameters
+    public class OrphanParameters : RequestParameters
     {
         // TODO: Search, filter, and sort parameters
+
     }
 }

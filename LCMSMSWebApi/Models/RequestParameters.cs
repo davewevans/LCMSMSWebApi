@@ -1,6 +1,6 @@
 ﻿namespace LCMSMSWebApi.Models
 {
-    public class QueryStringParameters
+    public abstract class RequestParameters
     {
         const int maxPageSize = 100;
 

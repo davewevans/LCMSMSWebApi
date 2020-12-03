@@ -53,6 +53,8 @@ namespace LCMSMSWebApi
 
             services.AddScoped<PictureService>();
 
+            services.AddScoped<OrphanService>();
+
             services.ConfigureAddDbContext(Configuration);
 
             services.AddControllersWithViews();

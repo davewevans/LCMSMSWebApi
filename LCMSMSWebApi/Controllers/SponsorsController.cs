@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LCMSMSWebApi.Data;
 using LCMSMSWebApi.DTOs;
+using LCMSMSWebApi.enums;
+using LCMSMSWebApi.Helpers;
 using LCMSMSWebApi.Models;
 using LCMSMSWebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -39,6 +42,68 @@ namespace LCMSMSWebApi.Controllers
             var sponsorsDto = _mapper.Map<List<SponsorDTO>>(sponsors);
 
             return Ok(sponsorsDto);
+        }
+
+        /// <summary>
+        /// Get sponsor records for the Syncfusion DataGrid
+        /// ref: https://www.syncfusion.com/forums/154196/databind-to-paging-rest-api
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("sponsorsSFDataGrid")]
+        public object GetSponsorsSFDataGrid()
+        {
+            var data = _dbContext.Sponsors.AsQueryable();
+            var count = data.Count();
+            var queryString = Request.Query;
+
+            StringValues Skip, Take, SearchTerm, ColumnName, SortDirection;
+
+            int skip = 0;
+            int top = 20;
+            int sortDirection = 0;
+
+            string searchTerm = "";
+            string columnName = "";
+
+            bool descending = false;
+
+            // Parse query string sent from Syncfusion DataGrid
+            if (queryString.Keys.Contains("$inlinecount"))
+            {
+                skip = queryString.TryGetValue("$skip", out Skip) ? Convert.ToInt32(Skip[0]) : 0;
+                top = queryString.TryGetValue("$top", out Take) ? Convert.ToInt32(Take[0]) : data.Count();
+                searchTerm = queryString.TryGetValue("SearchTerm", out SearchTerm) ? SearchTerm[0] : "";
+                columnName = queryString.TryGetValue("ColumnName", out ColumnName) ? ColumnName[0] : "";
+                sortDirection = queryString.TryGetValue("SortDirection", out SortDirection) ? Convert.ToInt32(SortDirection[0]) : 0;
+                descending = (SortingDirection)sortDirection == SortingDirection.Descending ? true : false;
+            }
+
+            List<Sponsor> sponsors = new List<Sponsor>();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                sponsors = (from sponsor in data
+                           where sponsor.FirstName.ToLower().Contains(searchTerm.ToLower()) ||
+                           sponsor.LastName.ToLower().Contains(searchTerm.ToLower()) ||
+                           sponsor.Email.ToLower().Contains(searchTerm.ToLower())
+                           select sponsor)
+                           .Skip(skip)
+                           .Take(top)
+                           .OrderByDynamic(columnName, descending)
+                           .ToList();
+            }
+            else // No search term 
+            {
+                sponsors = data
+                    .Skip(skip)
+                    .Take(top)
+                    .OrderByDynamic(columnName, descending)
+                    .ToList();
+            }
+
+            var sponsorsDto = _mapper.Map<List<SponsorDTO>>(sponsors);
+
+            return new { Items = sponsorsDto, Count = count };
         }
 
         [HttpGet("{id}", Name = "getSponsor")]
