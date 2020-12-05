@@ -98,10 +98,7 @@ namespace LCMSMSWebApi.Controllers
                                ?? await _pictureService.GetImageBytesAsync(dto.File);
 
             // Optimize with TinyPNG API
-            pictureBytes = await _pictureService.OptimizeWithTinyPngAsync(pictureBytes);            
-
-            // File storage service can use multiple connection strings (Photo & PDFs). This sets it.
-            // _pictureStorageService.SetConnectionString(StorageConnectionType.Photo);          
+            pictureBytes = await _pictureService.OptimizeWithTinyPngAsync(pictureBytes);          
 
             try
             {
@@ -153,10 +150,7 @@ namespace LCMSMSWebApi.Controllers
                                ?? await _pictureService.GetImageBytesAsync(dto.File);
 
             // Optimize with TinyPNG API
-            pictureBytes = await _pictureService.OptimizeWithTinyPngAsync(pictureBytes);
-
-            // File storage service can use multiple connection strings (Photo & PDFs). This sets it.
-            //_pictureStorageService.SetConnectionString(StorageConnectionType.Photo);               
+            pictureBytes = await _pictureService.OptimizeWithTinyPngAsync(pictureBytes);            
 
             try
             {

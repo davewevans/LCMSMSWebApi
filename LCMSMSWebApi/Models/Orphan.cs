@@ -34,6 +34,8 @@ namespace LCMSMSWebApi.Models
         [Required(ErrorMessage = "An entry date is required.")]
         public DateTime EntryDate { get; set; }
 
+        public string RelationshipToGuardian { get; set; }
+
         public int? GuardianID { get; set; }
 
         public string ProfilePicFileName { get; set; }

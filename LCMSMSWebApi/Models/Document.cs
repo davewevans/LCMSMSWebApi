@@ -11,6 +11,8 @@ namespace LCMSMSWebApi.Models
 
         public string FileName { get; set; }
 
+        public bool AllSponsors { get; set; }
+
         public int OrphanID { get; set; }
 
         public int SponsorID { get; set; }

@@ -192,7 +192,6 @@ namespace LCMSMSWebApi.Controllers
                 .Include("Guardian")
                 .Include("Narrations")
                 .Include("Academics")
-                .Include("Documents")
                 .FirstOrDefaultAsync(x => x.OrphanID == id);
 
             if (orphan == null)
@@ -270,7 +269,7 @@ namespace LCMSMSWebApi.Controllers
 
             if (orphan == null) return BadRequest("No orphan found.");
 
-            var picDtos = _pictureService.FindOrphanPicsByIdAsync(id);
+            var picDtos = await _pictureService.FindOrphanPicsByIdAsync(id);
 
             return Ok(picDtos);
         }

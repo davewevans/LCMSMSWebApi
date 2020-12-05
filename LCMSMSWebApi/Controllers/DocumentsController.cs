@@ -55,8 +55,12 @@ namespace LCMSMSWebApi.Controllers
         [HttpGet("pdfs/{orphanId}")]
         public ActionResult GetPDFsByOrphanId(int orphanId)
         {
-            var docs = _context.Documents.Where(x => x.OrphanID == orphanId);
-            return Ok(_mapper.Map<List<DocumentDTO>>(docs));
+            var pdfs = _context.Documents
+                .Where(x => x.OrphanID == orphanId)
+                .Include("Sponsor");
+            var pdfDtos = _mapper.Map<List<DocumentDTO>>(pdfs);
+            pdfDtos.ForEach(x => x.BaseUrl = _documentsStorageService.BaseUrl);
+            return Ok(pdfDtos);
         }
 
         /// <summary>
@@ -101,7 +105,8 @@ namespace LCMSMSWebApi.Controllers
                 EntryDate = DateTime.UtcNow,
                 FileName = Path.GetFileName(documentUrl),
                 OrphanID = dto.OrphanID,
-                SponsorID = dto.SponsorID
+                SponsorID = dto.SponsorID,
+                AllSponsors = dto.AllSponsors
             };
 
             try

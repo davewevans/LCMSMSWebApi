@@ -6,7 +6,7 @@ namespace LCMSMSWebApi.DTOs
 {
     public class PictureUploadDTO
     {
-        [FileSizeValidator(MaxFileSizeInMbs: 10)]
+        [FileSizeValidator(MaxFileSizeInMbs: 20)]
         [ContentTypeValidator(ContentType.Image)]
         public IFormFile File { get; set; }
 
