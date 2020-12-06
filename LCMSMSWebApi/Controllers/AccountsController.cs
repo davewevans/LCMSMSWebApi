@@ -117,9 +117,12 @@ namespace LCMSMSWebApi.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<UserToken>> Renew()
         {
+            var claim = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+            if (claim == null) return null;
+
             var userInfo = new UserInfoDTO()
             {
-                Email = HttpContext.User.Identity.Name
+                Email = claim.Value
             };
 
             return await BuildToken(userInfo);
@@ -153,7 +156,7 @@ namespace LCMSMSWebApi.Controllers
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             // Expiration time span for the JWT token
-            var expiration = DateTime.UtcNow.AddDays(1);
+            var expiration = DateTime.UtcNow.AddDays(30);
 
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: configuration["Tokens:Issuer"],

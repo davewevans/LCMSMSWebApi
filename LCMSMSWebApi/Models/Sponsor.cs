@@ -31,6 +31,8 @@ namespace LCMSMSWebApi.Models
         [MaxLength(15)]
         public string ZipCode { get; set; }
 
+        public string Status { get; set; }
+
         [EmailAddress(ErrorMessage = "Email address is invalid.")]
         public string Email { get; set; }
 

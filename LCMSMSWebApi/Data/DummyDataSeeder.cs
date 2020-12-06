@@ -36,6 +36,19 @@ namespace LCMSMSWebApi.Data
             //SeedNarrations();
             // SeedPictures();
             //SeedOrphanSponsors();
+
+            // SeedNewOrphanStatus();
+        }
+
+        public void SeedNewOrphanStatus()
+        {
+            var orphans = _dbContext.Orphans.ToList();
+            string[] statuses = new string[] { "Active", "Inactive", "Active-In School", "Active-Not In School", "Inactive-Married", "Inactive-Working", "Inactive-Deceased", "Unknown" };
+            foreach (var orphan in orphans)
+            {
+                orphan.LCMStatus = statuses[Random.Next(statuses.Length)];
+            }
+            _dbContext.SaveChanges();
         }
 
         public void SeedOrphans()

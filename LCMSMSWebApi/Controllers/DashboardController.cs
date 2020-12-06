@@ -47,8 +47,13 @@ namespace LCMSMSWebApi.Controllers
         {
             var orphanStatsDto = new OrphanStatisticsDTO
             {
-                ActiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Active"),
-                InactiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Not Active"),
+                ActiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Active")),
+                InactiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Not Active") || x.LCMStatus.Equals("Inactive")),
+                ActiveInSchoolCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Active-In School"),
+                ActiveNotInSchoolCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Active-Not In School"),
+                InactiveMarriedCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Inactive-Married"),
+                InactiveWorkingCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Inactive-Working"),
+                InactiveDeceasedCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Inactive-Deceased"),
                 TotalCount = await _dbContext.Orphans.CountAsync(),
             };
 

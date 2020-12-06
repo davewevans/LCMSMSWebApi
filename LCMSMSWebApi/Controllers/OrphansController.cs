@@ -83,7 +83,10 @@ namespace LCMSMSWebApi.Controllers
                 ? $"{ _pictureStorageService.BaseUrl }{ _placeholderPic }"
                 : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
             });
-           
+
+            // Append location to profile number
+            orphansDto.ForEach(x => _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
+
             return Ok(orphansDto);
         }
 
@@ -109,6 +112,9 @@ namespace LCMSMSWebApi.Controllers
 
             // Set profile or placeholder pic for each orphan
             _orphanService.SetProfilePicUrlForOrphans(orphansDto);
+
+            // Append location to profile number
+            orphansDto.ForEach(x => _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
 
             return Ok(orphansDto);
         }
@@ -176,6 +182,9 @@ namespace LCMSMSWebApi.Controllers
             // Set profile or placeholder pic for each orphan
             _orphanService.SetProfilePicUrlForOrphans(orphansDto);
 
+            // Append location to profile number
+            orphansDto.ForEach(x => _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
+
             return new { Items = orphansDto, Count = count };
         }
 
@@ -214,6 +223,12 @@ namespace LCMSMSWebApi.Controllers
                            where os.OrphanID == orphanDto.OrphanID
                            select os.Sponsor;
             orphanDto.Sponsors = _mapper.Map<List<SponsorDTO>>(sponsors.ToList());
+
+            // Sort Academics
+            orphanDto.Academics = orphanDto.Academics.OrderByDescending(x => x.EntryDate).ToList();
+
+            // Append location to profile # (ex: LCM 105-W)
+            orphanDto.ProfileNumber = _orphanService.AppendLocationToProfileNumber(orphanDto.ProfileNumber, orphanDto.Location);
 
             return orphanDto;
         }

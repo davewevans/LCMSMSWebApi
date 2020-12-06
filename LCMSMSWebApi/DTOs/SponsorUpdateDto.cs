@@ -20,6 +20,8 @@ namespace LCMSMSWebApi.DTOs
 
         public string MainPhone { get; set; }
 
+        public string Status { get; set; }
+
         public DateTime EntryDate { get; set; }
     }
 }

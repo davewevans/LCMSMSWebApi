@@ -4,14 +4,16 @@ using LCMSMSWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201205231015_AddedPropsOrpansSponsors")]
+    partial class AddedPropsOrpansSponsors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,9 +292,6 @@ namespace LCMSMSWebApi.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -307,7 +306,7 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<string>("RelationshipToGuardian")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("YearOfAdmission")
+                    b.Property<DateTime>("YearOfAdmission")
                         .HasColumnType("datetime2");
 
                     b.HasKey("OrphanID");

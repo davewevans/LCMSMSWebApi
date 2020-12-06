@@ -59,7 +59,7 @@ namespace LCMSMSWebApi.Controllers
         {
             var academics = _dbContext.Academics.Where(x => x.OrphanID == orphanId).ToList();
             var academicsDto = _mapper.Map<List<AcademicDTO>>(academics);
-
+            academicsDto = academicsDto.OrderByDescending(x => x.EntryDate).ToList();
             return Ok(academicsDto);
         }
 

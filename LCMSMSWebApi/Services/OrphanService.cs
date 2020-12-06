@@ -64,5 +64,23 @@ namespace LCMSMSWebApi.Services
             });
         }
 
+        public string AppendLocationToProfileNumber(string profileNumber, string location)
+        {
+            if (profileNumber.ToLower().EndsWith("w") || profileNumber.ToLower().EndsWith("k") || location == null)
+            {
+                return profileNumber;
+            }
+
+            if (location.Equals("Wachara"))
+            {
+                return $"{profileNumber}-W";
+            }
+            else if (location.Equals("Kisumu"))
+            {
+                return $"{profileNumber}-K";
+            }
+            return profileNumber;
+        }
+
     }
 }

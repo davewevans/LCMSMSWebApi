@@ -33,6 +33,8 @@ namespace LCMSMSWebApi.DTOs
         //[Phone(ErrorMessage = "Invalid phone number.")]
         public string MainPhone { get; set; }
 
+        public string Status { get; set; }
+
         public DateTime EntryDate { get; set; }
      
         public List<OrphanSponsorDTO> OrphanSponsors { get; set; }
