@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace LCMSMSWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/orphanssponsors")]
     [ApiController]
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [AllowAnonymous]

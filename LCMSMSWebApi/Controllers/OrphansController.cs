@@ -85,7 +85,8 @@ namespace LCMSMSWebApi.Controllers
             });
 
             // Append location to profile number
-            orphansDto.ForEach(x => _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
+            orphansDto
+                .ForEach(x => x.ProfileNumber = _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
 
             return Ok(orphansDto);
         }
@@ -114,7 +115,8 @@ namespace LCMSMSWebApi.Controllers
             _orphanService.SetProfilePicUrlForOrphans(orphansDto);
 
             // Append location to profile number
-            orphansDto.ForEach(x => _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
+            orphansDto
+                .ForEach(x => x.ProfileNumber = _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
 
             return Ok(orphansDto);
         }
@@ -183,7 +185,8 @@ namespace LCMSMSWebApi.Controllers
             _orphanService.SetProfilePicUrlForOrphans(orphansDto);
 
             // Append location to profile number
-            orphansDto.ForEach(x => _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
+            orphansDto
+                .ForEach(x => x.ProfileNumber = _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
 
             return new { Items = orphansDto, Count = count };
         }

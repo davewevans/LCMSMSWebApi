@@ -15,9 +15,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LCMSMSWebApi.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("api/dashboard")]
+    [ApiController]   
     public class DashboardController : ControllerBase
     {
 

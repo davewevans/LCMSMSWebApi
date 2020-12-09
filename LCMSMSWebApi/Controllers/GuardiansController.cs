@@ -18,9 +18,8 @@ using Microsoft.Extensions.Primitives;
 
 namespace LCMSMSWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/guardians")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [AllowAnonymous]
     public class GuardiansController : ControllerBase
     {
@@ -118,6 +117,7 @@ namespace LCMSMSWebApi.Controllers
             return _mapper.Map<GuardianDTO>(guardian);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] GuardianDTO guardianDto)
         {
@@ -133,6 +133,7 @@ namespace LCMSMSWebApi.Controllers
             return new CreatedAtRouteResult("getGuardian", new { id = guardianDto.GuardianID }, guardianDto);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] GuardianUpdateDTO guardianUpdateDto)
         {
@@ -161,6 +162,7 @@ namespace LCMSMSWebApi.Controllers
             return NoContent();
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {

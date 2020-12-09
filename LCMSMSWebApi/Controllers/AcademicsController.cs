@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LCMSMSWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/academics")]
     [ApiController]
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [AllowAnonymous]

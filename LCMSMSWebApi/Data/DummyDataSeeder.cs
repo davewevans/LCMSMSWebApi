@@ -37,7 +37,7 @@ namespace LCMSMSWebApi.Data
             // SeedPictures();
             //SeedOrphanSponsors();
 
-            // SeedNewOrphanStatus();
+            //SeedNewOrphanStatus();
         }
 
         public void SeedNewOrphanStatus()
@@ -72,7 +72,6 @@ namespace LCMSMSWebApi.Data
                     MiddleName = obj.MiddleName,
                     Gender = obj.Gender,
                     DateOfBirth = obj.DateOfBirth,
-                    LCMStatus = obj.LCMStatus,
                     ProfileNumber = obj.ProfileNumber,
                 });
             }

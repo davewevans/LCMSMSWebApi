@@ -18,7 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LCMSMSWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/accounts")]
     [ApiController]
     public class AccountsController : ControllerBase
     {

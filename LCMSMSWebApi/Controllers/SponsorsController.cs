@@ -18,9 +18,8 @@ using Microsoft.Extensions.Primitives;
 
 namespace LCMSMSWebApi.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("api/sponsors")]
+    [ApiController]    
     [AllowAnonymous]
     public class SponsorsController : ControllerBase
     {
@@ -119,6 +118,7 @@ namespace LCMSMSWebApi.Controllers
             return _mapper.Map<SponsorDTO>(sponsor);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] SponsorDTO sponsorDto)
         {
@@ -134,6 +134,7 @@ namespace LCMSMSWebApi.Controllers
             return new CreatedAtRouteResult("getSponsor", new { id = sponsorDto.SponsorID }, sponsorDto);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] SponsorUpdateDTO sponsorUpdateDtoDto)
         {
@@ -162,6 +163,7 @@ namespace LCMSMSWebApi.Controllers
             return NoContent();
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
