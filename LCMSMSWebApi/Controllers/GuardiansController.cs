@@ -26,12 +26,17 @@ namespace LCMSMSWebApi.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ISyncDatabasesService _syncDatabasesService;
+        private readonly OrphanService _orphanService;
 
-        public GuardiansController(ApplicationDbContext dbContext, IMapper mapper, ISyncDatabasesService syncDatabasesService)
+        public GuardiansController(ApplicationDbContext dbContext, 
+            IMapper mapper, 
+            ISyncDatabasesService syncDatabasesService,
+            OrphanService orphanService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _syncDatabasesService = syncDatabasesService;
+            _orphanService = orphanService;
         }
 
         [HttpGet]
@@ -104,6 +109,7 @@ namespace LCMSMSWebApi.Controllers
             return new { Items = guardiansDto, Count = count };
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("{id}", Name = "getGuardian")]
         public async Task<ActionResult<GuardianDTO>> Get(int id)
         {
@@ -116,6 +122,23 @@ namespace LCMSMSWebApi.Controllers
 
             return _mapper.Map<GuardianDTO>(guardian);
         }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("guardianOrphans/{id}")]
+        public async Task<ActionResult> GetGuardianOrphans(int id)
+        {
+            var guardian = await _dbContext.Guardians.FirstOrDefaultAsync(x => x.GuardianID == id);
+            if (guardian is null) return NotFound();
+            var orphans =  _dbContext.Orphans.Where(x => x.GuardianID == guardian.GuardianID).ToList();
+            var orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
+
+            // Append location to profile number
+            orphansDto
+                .ForEach(x => x.ProfileNumber = _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
+
+            return Ok(orphansDto);
+        }
+
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
@@ -137,14 +160,6 @@ namespace LCMSMSWebApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] GuardianUpdateDTO guardianUpdateDto)
         {
-            //
-            // TODO
-            // Make sure client sends complete object.
-            // Put request can be error prone. For example,
-            // if the dto is sent by the client and a property is null,
-            // this null value will overwrite the value in the db.
-            // This may or may not be what we want!
-            //
 
             var guardian = await _dbContext.Guardians.FirstOrDefaultAsync(x => x.GuardianID == id);
 

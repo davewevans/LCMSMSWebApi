@@ -90,15 +90,6 @@ namespace LCMSMSWebApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] NarrationUpdateDTO narrationUpdateDtoDto)
         {
-            //
-            // TODO
-            // Make sure client sends complete object.
-            // Put request can be error prone. For example,
-            // if the dto is sent by the client and a property is null,
-            // this null value will overwrite the value in the db.
-            // This may or may not be what we want!
-            //
-
             var narration = await _dbContext.Narrations.FirstOrDefaultAsync(x => x.NarrationID == id);
 
             if (narration == null)
