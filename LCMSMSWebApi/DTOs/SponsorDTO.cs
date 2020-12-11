@@ -36,7 +36,9 @@ namespace LCMSMSWebApi.DTOs
         public string Status { get; set; }
 
         public DateTime EntryDate { get; set; }
-     
-        public List<OrphanSponsorDTO> OrphanSponsors { get; set; }
+
+        public DateTime? LastDonationDate { get; set; }
+
+        public List<OrphanDTO> Orphans { get; set; }
     }
 }

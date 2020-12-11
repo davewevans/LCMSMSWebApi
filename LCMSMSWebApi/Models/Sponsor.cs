@@ -42,6 +42,8 @@ namespace LCMSMSWebApi.Models
         [Required(ErrorMessage = "An entry date is required.")]
         public DateTime EntryDate { get; set; }
 
+        public DateTime? LastDonationDate { get; set; }
+
         public List<OrphanSponsor> OrphanSponsors { get; set; }
 
         public List<Document> Documents { get; set; }

@@ -23,5 +23,7 @@ namespace LCMSMSWebApi.DTOs
         public string Status { get; set; }
 
         public DateTime EntryDate { get; set; }
+
+        public DateTime? LastDonationDate { get; set; }
     }
 }

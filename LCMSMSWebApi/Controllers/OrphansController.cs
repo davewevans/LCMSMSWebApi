@@ -35,7 +35,7 @@ namespace LCMSMSWebApi.Controllers
         private readonly PictureService _pictureService;
         private readonly OrphanService _orphanService;
         private readonly ILogger<OrphansController> _logger;
-        private readonly string _placeholderPic = "no_image_found_300x300.jpg";
+        
         
 
         public OrphansController(ApplicationDbContext dbContext,
@@ -80,7 +80,7 @@ namespace LCMSMSWebApi.Controllers
             orphansDto.ForEach(orphan =>
             {
                 orphan.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
-                ? $"{ _pictureStorageService.BaseUrl }{ _placeholderPic }"
+                ? $"{ _pictureStorageService.BaseUrl }{ _pictureService.PlaceholderPic }"
                 : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
             });
 
@@ -215,7 +215,7 @@ namespace LCMSMSWebApi.Controllers
 
             // Assign the profile or placeholder pic
             orphanDto.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
-                ? $"{ _pictureStorageService.BaseUrl }{ _placeholderPic }"
+                ? $"{ _pictureStorageService.BaseUrl }{ _pictureService.PlaceholderPic }"
                 : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
 
             // Picture album for orphan
@@ -229,6 +229,9 @@ namespace LCMSMSWebApi.Controllers
 
             // Sort Academics
             orphanDto.Academics = orphanDto.Academics.OrderByDescending(x => x.EntryDate).ToList();
+
+            // Sort Narrations
+            orphanDto.Narrations = orphanDto.Narrations.OrderByDescending(n => n.EntryDate).ToList();
 
             // Append location to profile # (ex: LCM 105-W)
             orphanDto.ProfileNumber = _orphanService.AppendLocationToProfileNumber(orphanDto.ProfileNumber, orphanDto.Location);

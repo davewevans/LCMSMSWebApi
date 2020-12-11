@@ -23,6 +23,7 @@ namespace LCMSMSWebApi.Services
     {
         private readonly ApplicationDbContext context;
         private readonly IPictureStorageService pictureStorageService;
+        public string PlaceholderPic { get; } = "no_image_found_300x300.jpg";
 
         public PictureService(ApplicationDbContext context, 
             IPictureStorageService pictureStorageService, IConfiguration configuration)

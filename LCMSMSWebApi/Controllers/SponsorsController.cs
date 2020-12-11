@@ -26,12 +26,23 @@ namespace LCMSMSWebApi.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ISyncDatabasesService _syncDatabasesService;
+        private readonly OrphanService _orphanService;
+        private readonly IPictureStorageService _pictureStorageService;
+        private readonly PictureService _pictureService;
 
-        public SponsorsController(ApplicationDbContext dbContext, IMapper mapper, ISyncDatabasesService syncDatabasesService)
+        public SponsorsController(ApplicationDbContext dbContext, 
+            IMapper mapper, 
+            ISyncDatabasesService syncDatabasesService,
+             OrphanService orphanService,
+            IPictureStorageService pictureStorageService,
+            PictureService pictureService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _syncDatabasesService = syncDatabasesService;
+            _orphanService = orphanService;
+            _pictureStorageService = pictureStorageService;
+            _pictureService = pictureService;
         }
 
         [HttpGet]
@@ -105,17 +116,60 @@ namespace LCMSMSWebApi.Controllers
             return new { Items = sponsorsDto, Count = count };
         }
 
-        [HttpGet("{id}", Name = "getSponsor")]
+        [HttpGet("sponsorDetails/{id}", Name = "getSponsor")]
         public async Task<ActionResult<SponsorDTO>> Get(int id)
         {
-            var sponsor = await _dbContext.Sponsors.FirstOrDefaultAsync(x => x.SponsorID == id);
+            var sponsor = await _dbContext
+                .Sponsors
+                .FirstOrDefaultAsync(x => x.SponsorID == id);
 
             if (sponsor == null)
             {
                 return NotFound();
             }
 
-            return _mapper.Map<SponsorDTO>(sponsor);
+            var sponsorDto = _mapper.Map<SponsorDTO>(sponsor);
+
+            // Include orphans
+            var orphans = from os in _dbContext.OrphanSponsors
+                          where os.SponsorID == sponsorDto.SponsorID
+                          select os.Orphan;
+
+            if (orphans != null)
+                sponsorDto.Orphans = _mapper.Map<List<OrphanDTO>>(orphans.ToList());
+
+            return sponsorDto;
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("sponsorOrphans/{id}")]
+        public async Task<ActionResult> GetSponsorOrphans(int id)
+        {
+            var sponsor = await _dbContext.Sponsors.FirstOrDefaultAsync(x => x.SponsorID == id);
+            if (sponsor is null) return NotFound();            
+
+            // Include orphans
+            var orphans = from os in _dbContext.OrphanSponsors
+                          where os.SponsorID == sponsor.SponsorID
+                          select os.Orphan;
+
+            if (orphans == null) return null;
+
+            var orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
+
+            // Set profile pic url or placeholder url for each orphan
+            orphansDto.ForEach(orphan =>
+            {
+                orphan.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
+                ? $"{ _pictureStorageService.BaseUrl }{ _pictureService.PlaceholderPic }"
+                : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
+            });
+
+            // Append location to profile number
+            orphansDto
+                .ForEach(x => x.ProfileNumber = _orphanService.AppendLocationToProfileNumber(x.ProfileNumber, x.Location));
+
+            return Ok(orphansDto);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -136,17 +190,8 @@ namespace LCMSMSWebApi.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] SponsorUpdateDTO sponsorUpdateDtoDto)
+        public async Task<ActionResult> Put(int id, [FromBody] SponsorUpdateDTO sponsorUpdateDto)
         {
-            //
-            // TODO
-            // Make sure client sends complete object.
-            // Put request can be error prone. For example,
-            // if the dto is sent by the client and a property is null,
-            // this null value will overwrite the value in the db.
-            // This may or may not be what we want!
-            //
-
             var sponsor = await _dbContext.Sponsors.FirstOrDefaultAsync(x => x.SponsorID == id);
 
             if (sponsor == null)
@@ -154,7 +199,16 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            sponsor = _mapper.Map(sponsorUpdateDtoDto, sponsor);
+            sponsor.FirstName = sponsorUpdateDto.FirstName;
+            sponsor.LastName = sponsorUpdateDto.LastName;
+            sponsor.Address = sponsorUpdateDto.Address;
+            sponsor.City = sponsorUpdateDto.City;
+            sponsor.State = sponsorUpdateDto.State;
+            sponsor.ZipCode = sponsorUpdateDto.ZipCode;
+            sponsor.MainPhone = sponsorUpdateDto.MainPhone;
+            sponsor.Email = sponsorUpdateDto.Email;
+            sponsor.Status = sponsorUpdateDto.Status;
+            sponsor.LastDonationDate = sponsorUpdateDto.LastDonationDate;
 
             await _dbContext.SaveChangesAsync();
 

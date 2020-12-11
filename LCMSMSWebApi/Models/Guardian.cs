@@ -22,5 +22,7 @@ namespace LCMSMSWebApi.Models
         public string Location { get; set; }
 
         public List<Orphan> Orphans { get; set; }
+
+        public List<Narration> Narrations { get; set; }
     }
 }

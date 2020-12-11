@@ -27,16 +27,22 @@ namespace LCMSMSWebApi.Controllers
         private readonly IMapper _mapper;
         private readonly ISyncDatabasesService _syncDatabasesService;
         private readonly OrphanService _orphanService;
+        private readonly IPictureStorageService _pictureStorageService;
+        private readonly PictureService _pictureService;
 
         public GuardiansController(ApplicationDbContext dbContext, 
             IMapper mapper, 
             ISyncDatabasesService syncDatabasesService,
-            OrphanService orphanService)
+            OrphanService orphanService,
+            IPictureStorageService pictureStorageService,
+            PictureService pictureService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _syncDatabasesService = syncDatabasesService;
             _orphanService = orphanService;
+            _pictureStorageService = pictureStorageService;
+            _pictureService = pictureService;
         }
 
         [HttpGet]
@@ -110,15 +116,21 @@ namespace LCMSMSWebApi.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpGet("{id}", Name = "getGuardian")]
+        [HttpGet("guardianDetails/{id}", Name = "getGuardian")]
         public async Task<ActionResult<GuardianDTO>> Get(int id)
         {
-            var guardian = await _dbContext.Guardians.FirstOrDefaultAsync(x => x.GuardianID == id);
+            var guardian = await _dbContext
+                .Guardians
+                .Include("Narrations")
+                .Include("Orphans")
+                .FirstOrDefaultAsync(x => x.GuardianID == id);
 
             if (guardian == null)
             {
                 return NotFound();
             }
+
+            guardian.Narrations = guardian.Narrations.OrderByDescending(n => n.EntryDate).ToList();
 
             return _mapper.Map<GuardianDTO>(guardian);
         }
@@ -131,6 +143,14 @@ namespace LCMSMSWebApi.Controllers
             if (guardian is null) return NotFound();
             var orphans =  _dbContext.Orphans.Where(x => x.GuardianID == guardian.GuardianID).ToList();
             var orphansDto = _mapper.Map<List<OrphanDTO>>(orphans);
+
+            // Set profile pic url or placeholder url for each orphan
+            orphansDto.ForEach(orphan =>
+            {
+                orphan.ProfilePicUrl = string.IsNullOrWhiteSpace(orphan.ProfilePicFileName)
+                ? $"{ _pictureStorageService.BaseUrl }{ _pictureService.PlaceholderPic }"
+                : $"{ _pictureStorageService.BaseUrl }{ orphan.ProfilePicFileName }";
+            });
 
             // Append location to profile number
             orphansDto
@@ -168,7 +188,9 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            guardian = _mapper.Map(guardianUpdateDto, guardian);
+            guardian.FirstName = guardianUpdateDto.FirstName;
+            guardian.LastName = guardianUpdateDto.LastName;
+            guardian.Location = guardianUpdateDto.Location;
 
             await _dbContext.SaveChangesAsync();
 

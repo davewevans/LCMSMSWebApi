@@ -54,21 +54,21 @@ namespace LCMSMSWebApi.Controllers
             return _mapper.Map<NarrationDTO>(narration);
         }
 
-        [HttpGet("orphan/{orphanId}", Name = "GetOrphanNarrations")]
+        [HttpGet("orphanNarrations/{orphanId}", Name = "GetOrphanNarrations")]
         public IActionResult GetOrphanNarrations(int orphanId)
         {
             var narrations = _dbContext.Narrations.Where(x => x.OrphanID == orphanId).ToList();
             var narrationsDto = _mapper.Map<List<NarrationDTO>>(narrations);
-
+            narrationsDto = narrationsDto.OrderByDescending(n => n.EntryDate).ToList();
             return Ok(narrationsDto);
         }
       
-        [HttpGet("guardian/{guardianId}", Name = "GetGuardianNarrations")]
+        [HttpGet("guardianNarrations/{guardianId}", Name = "GetGuardianNarrations")]
         public IActionResult GetGuardianNarrations(int guardianId)
         {
             var narrations = _dbContext.Narrations.Where(x => x.GuardianID == guardianId).ToList();
             var narrationsDto = _mapper.Map<List<NarrationDTO>>(narrations);
-
+            narrationsDto = narrationsDto.OrderByDescending(n => n.EntryDate).ToList();
             return Ok(narrationsDto);
         }      
 
@@ -76,6 +76,7 @@ namespace LCMSMSWebApi.Controllers
         public async Task<ActionResult> Post([FromBody] NarrationDTO narrationDto)
         {
             var narration = _mapper.Map<Narration>(narrationDto);
+            narration.EntryDate = DateTime.UtcNow;
 
             await _dbContext.Narrations.AddAsync(narration);
             await _dbContext.SaveChangesAsync();

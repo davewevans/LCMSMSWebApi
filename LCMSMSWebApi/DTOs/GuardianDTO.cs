@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LCMSMSWebApi.Models;
 using Newtonsoft.Json;
 
 namespace LCMSMSWebApi.DTOs
@@ -19,5 +20,9 @@ namespace LCMSMSWebApi.DTOs
         public DateTime EntryDate { get; set; }
 
         public string Location { get; set; }
+
+        public List<OrphanDTO> Orphans { get; set; }
+
+        public List<NarrationDTO> Narrations { get; set; }
     }
 }
