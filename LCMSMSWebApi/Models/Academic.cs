@@ -19,6 +19,9 @@ namespace LCMSMSWebApi.Models
         [MaxLength(255)]
         public string School { get; set; }
 
+        [MaxLength(1000)]
+        public string PostKCSENotes { get; set; }
+
         [Required(ErrorMessage = "{0} is required.")]
         public DateTime EntryDate { get; set; }
 

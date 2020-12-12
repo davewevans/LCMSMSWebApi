@@ -17,7 +17,7 @@ namespace LCMSMSWebApi.Controllers
 {
     [Route("api/academics")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [AllowAnonymous]
     public class AcademicsController : ControllerBase
     {
@@ -88,8 +88,9 @@ namespace LCMSMSWebApi.Controllers
             academic.Grade = academicDto.Grade;
             academic.KCPE = academicDto.KCPE;
             academic.KCSE = academicDto.KCSE;
-            academic.School = academic.School;
-            
+            academic.School = academicDto.School;
+            academic.PostKCSENotes = academicDto.PostKCSENotes;
+
             await _dbContext.SaveChangesAsync();
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();          
 
@@ -99,15 +100,6 @@ namespace LCMSMSWebApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] AcademicUpdateDTO academicUpdateDto)
         {
-            //
-            // TODO
-            // Make sure client sends complete object.
-            // Put request can be error prone. For example,
-            // if the dto is sent by the client and a property is null,
-            // this null value will overwrite the value in the db.
-            // This may or may not be what we want!
-            //
-
             var academic = await _dbContext.Academics.FirstOrDefaultAsync(x => x.AcademicID == id);
 
             if (academic == null)

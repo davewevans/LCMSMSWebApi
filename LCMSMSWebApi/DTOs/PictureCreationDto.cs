@@ -1,5 +1,7 @@
 ﻿using LCMSMSWebApi.Validations;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace LCMSMSWebApi.DTOs
 {
@@ -13,7 +15,10 @@ namespace LCMSMSWebApi.DTOs
 
         public bool SetAsProfilePic { get; set; }
 
+        [StringLength(256)]
         public string Caption { get; set; }
+
+        public DateTime? TakenDate { get; set; }
 
         public string ContentType { get; set; }
 

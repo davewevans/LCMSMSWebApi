@@ -166,6 +166,8 @@ namespace LCMSMSWebApi.Services
                            PictureID = oPic.Picture.PictureID,
                            PictureFileName = oPic.Picture.PictureFileName,
                            Caption = oPic.Picture.Caption,
+                           TakenDate = oPic.Picture.TakenDate,
+                           EntryDate = oPic.Picture.EntryDate,
                            OrphanID = id,
                            BaseUrl = pictureStorageService.BaseUrl                          
                        };

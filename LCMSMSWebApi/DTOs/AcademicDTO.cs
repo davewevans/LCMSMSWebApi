@@ -12,6 +12,7 @@ namespace LCMSMSWebApi.DTOs
         public string KCPE { get; set; }
         public string KCSE { get; set; }
         public string School { get; set; }
+        public string PostKCSENotes { get; set; }
         public DateTime EntryDate { get; set; }
         public int OrphanID { get; set; }
     }

@@ -28,7 +28,7 @@ namespace LCMSMSWebApi.Controllers
         private readonly IPictureStorageService _pictureStorageService;
         private readonly PictureService _pictureService;
         private readonly IHostEnvironment _environment;
-        private readonly ILogger _logger;
+        private readonly ILogger<PicturesController> _logger;
         private readonly string _containerName = "lcmsmsblobdemo";        
         private const int _imageSizeMaxWidth = 800;
         private const int _profilePicMaxWidth = 300;
@@ -37,13 +37,15 @@ namespace LCMSMSWebApi.Controllers
             IMapper mapper,
             IPictureStorageService pictureStorageService,
             PictureService pictureService,
-            IHostEnvironment environment)
+            IHostEnvironment environment,
+            ILogger<PicturesController> logger)
         {
             _context = context;
             _mapper = mapper;
             _pictureStorageService = pictureStorageService;
             _pictureService = pictureService;
             _environment = environment;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -112,7 +114,8 @@ namespace LCMSMSWebApi.Controllers
                 {
                     PictureFileName = Path.GetFileName(picUrl),
                     Caption = dto.Caption,
-                    EntryDate = DateTime.Now
+                    TakenDate = dto.TakenDate,
+                    EntryDate = DateTime.UtcNow
                 };
 
                 await _context.Pictures.AddAsync(newPic);
@@ -183,9 +186,17 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound();
             }
 
-            var picToDelete = _context.Pictures.SingleOrDefaultAsync(x => x.PictureID == id);
-            _context.Remove(picToDelete);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var picToDelete = _context.Pictures.FirstOrDefault(x => x.PictureID == id);
+                _context.Remove(picToDelete);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+
 
             return NoContent();
         }
