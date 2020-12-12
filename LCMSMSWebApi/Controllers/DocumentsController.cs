@@ -106,7 +106,8 @@ namespace LCMSMSWebApi.Controllers
                 FileName = Path.GetFileName(documentUrl),
                 OrphanID = dto.OrphanID,
                 SponsorID = dto.SponsorID,
-                AllSponsors = dto.AllSponsors
+                AllSponsors = dto.AllSponsors,
+                OriginalFileName = dto.OriginalFileName
             };
 
             try
