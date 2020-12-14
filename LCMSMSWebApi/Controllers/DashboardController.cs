@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LCMSMSWebApi.Controllers
 {
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/dashboard")]
     [ApiController]   
     public class DashboardController : ControllerBase
@@ -76,8 +76,8 @@ namespace LCMSMSWebApi.Controllers
 
             try
             {
-               narrationStats.OrphanLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault()?.EntryDate;
-               narrationStats.GuardianLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault()?.EntryDate;
+               //narrationStats.OrphanLastContact = narrations.Where(x => x.OrphanID != 0 && x.OrphanID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault()?.EntryDate;
+               //narrationStats.GuardianLastContact = narrations.Where(x => x.GuardianID != 0 && x.GuardianID != null).OrderByDescending(d => d.EntryDate).FirstOrDefault()?.EntryDate;
             }
             catch (Exception ex)
             {
