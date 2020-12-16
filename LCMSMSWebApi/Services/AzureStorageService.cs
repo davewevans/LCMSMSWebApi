@@ -20,12 +20,10 @@ namespace LCMSMSWebApi.Services
     {
         protected string connectionString;
         protected readonly IConfiguration configuration;
-        //private readonly ILogger logger;
 
         public AzureStorageService(IConfiguration configuration)
         {
-            this.configuration = configuration;
-            //this.logger = logger;
+            this.configuration = configuration;          
         }
 
 
