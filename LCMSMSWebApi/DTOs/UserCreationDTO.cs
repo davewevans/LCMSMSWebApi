@@ -1,4 +1,6 @@
-﻿namespace LCMSMSWebApi.DTOs
+﻿using System.Collections.Generic;
+
+namespace LCMSMSWebApi.DTOs
 {
     public class UserCreationDTO
     {
@@ -12,6 +14,6 @@
 
         public string ConfirmPassword { get; set; }
 
-        public string Role { get; set; }
+        public List<RoleDTO> Roles { get; set; }
     }
 }

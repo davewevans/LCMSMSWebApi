@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201119204433_SeedRoles")]
-    partial class SeedRoles
+    [Migration("20210222194625_GuardianAltPhoneNumbers")]
+    partial class GuardianAltPhoneNumbers
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -46,6 +46,10 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<int>("OrphanID")
                         .HasColumnType("int");
 
+                    b.Property<string>("PostKCSENotes")
+                        .HasColumnType("nvarchar(1000)")
+                        .HasMaxLength(1000);
+
                     b.Property<string>("School")
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
@@ -55,6 +59,26 @@ namespace LCMSMSWebApi.Migrations
                     b.HasIndex("OrphanID");
 
                     b.ToTable("Academics");
+                });
+
+            modelBuilder.Entity("LCMSMSWebApi.Models.AltPhoneNumber", b =>
+                {
+                    b.Property<int>("AltPhoneNumberID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("GuardianID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AltPhoneNumberID");
+
+                    b.HasIndex("GuardianID");
+
+                    b.ToTable("AltPhoneNumbers");
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.ApplicationUser", b =>
@@ -69,15 +93,15 @@ namespace LCMSMSWebApi.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -172,16 +196,22 @@ namespace LCMSMSWebApi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<bool>("AllSponsors")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OriginalFileName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("OrphanID")
                         .HasColumnType("int");
 
-                    b.Property<int>("SponsorID")
+                    b.Property<int?>("SponsorID")
                         .HasColumnType("int");
 
                     b.HasKey("DocumentID");
@@ -214,6 +244,9 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
+
+                    b.Property<string>("MainPhone")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("GuardianID");
 
@@ -248,6 +281,8 @@ namespace LCMSMSWebApi.Migrations
 
                     b.HasKey("NarrationID");
 
+                    b.HasIndex("GuardianID");
+
                     b.HasIndex("OrphanID");
 
                     b.ToTable("Narrations");
@@ -259,6 +294,9 @@ namespace LCMSMSWebApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Condition")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
@@ -286,6 +324,9 @@ namespace LCMSMSWebApi.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -296,6 +337,12 @@ namespace LCMSMSWebApi.Migrations
 
                     b.Property<string>("ProfilePicFileName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RelationshipToGuardian")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("YearOfAdmission")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("OrphanID");
 
@@ -350,14 +397,14 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<string>("Caption")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PictureFileName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("TakenDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("PictureID");
 
@@ -390,6 +437,9 @@ namespace LCMSMSWebApi.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
+                    b.Property<DateTime?>("LastDonationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)")
@@ -401,6 +451,9 @@ namespace LCMSMSWebApi.Migrations
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(30)")
                         .HasMaxLength(30);
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ZipCode")
                         .HasColumnType("nvarchar(15)")
@@ -551,6 +604,13 @@ namespace LCMSMSWebApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("LCMSMSWebApi.Models.AltPhoneNumber", b =>
+                {
+                    b.HasOne("LCMSMSWebApi.Models.Guardian", "Guardian")
+                        .WithMany("AltPhoneNumbers")
+                        .HasForeignKey("GuardianID");
+                });
+
             modelBuilder.Entity("LCMSMSWebApi.Models.Document", b =>
                 {
                     b.HasOne("LCMSMSWebApi.Models.Orphan", "Orphan")
@@ -561,13 +621,15 @@ namespace LCMSMSWebApi.Migrations
 
                     b.HasOne("LCMSMSWebApi.Models.Sponsor", "Sponsor")
                         .WithMany("Documents")
-                        .HasForeignKey("SponsorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SponsorID");
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.Narration", b =>
                 {
+                    b.HasOne("LCMSMSWebApi.Models.Guardian", null)
+                        .WithMany("Narrations")
+                        .HasForeignKey("GuardianID");
+
                     b.HasOne("LCMSMSWebApi.Models.Orphan", null)
                         .WithMany("Narrations")
                         .HasForeignKey("OrphanID");

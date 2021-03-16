@@ -18,6 +18,16 @@ namespace LCMSMSWebApi.Models
         [Required(ErrorMessage = "An entry date is required.")]
         public DateTime EntryDate { get; set; }
 
+        public bool Approved { get; set; }
+
+        public DateTime? SubmittedAt { get; set; }
+
+        public string SubmittedByID { get; set; }
+
+        public DateTime? ApprovedAt { get; set; }
+
+        public string ApprovedByID { get; set; }
+
         public int? OrphanID { get; set; }
 
         public int? GuardianID { get; set; }

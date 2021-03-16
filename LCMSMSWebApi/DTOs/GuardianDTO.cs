@@ -21,6 +21,14 @@ namespace LCMSMSWebApi.DTOs
 
         public string Location { get; set; }
 
+        public string MainPhone { get; set; }
+
+        public string AltPhone1 { get; set; }
+
+        public string AltPhone2 { get; set; }
+
+        public string AltPhone3 { get; set; }
+
         public List<OrphanDTO> Orphans { get; set; }
 
         public List<NarrationDTO> Narrations { get; set; }

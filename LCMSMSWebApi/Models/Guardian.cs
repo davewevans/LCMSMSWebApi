@@ -21,8 +21,21 @@ namespace LCMSMSWebApi.Models
         [MaxLength(255)]
         public string Location { get; set; }
 
+        [Phone(ErrorMessage = "Phone number is invalid.")]
+        public string MainPhone { get; set; }
+
+        [Phone(ErrorMessage = "Phone number is invalid.")]
+        public string AltPhone1 { get; set; }
+
+        [Phone(ErrorMessage = "Phone number is invalid.")]
+        public string AltPhone2 { get; set; }
+
+        [Phone(ErrorMessage = "Phone number is invalid.")]
+        public string AltPhone3 { get; set; }
+
         public List<Orphan> Orphans { get; set; }
 
         public List<Narration> Narrations { get; set; }
+
     }
 }

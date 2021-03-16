@@ -37,6 +37,9 @@ namespace LCMSMSWebApi.Controllers
                 EntryDate = orphanSponsorDto.EntryDate
             };
 
+            bool exists = await _dbContext.OrphanSponsors.AnyAsync(x => x.OrphanID == orphanSponsorDto.OrphanID && x.SponsorID == orphanSponsorDto.SponsorID);
+            if (exists) return Ok();
+
             await _dbContext.OrphanSponsors.AddAsync(newAssignment);
             await _dbContext.SaveChangesAsync();
 

@@ -51,8 +51,8 @@ namespace LCMSMSWebApi.Controllers
 
             // add role for each user
             foreach (var user in users)
-            {
-                user.Role = await FindUserRoleAsync(user.UserID);
+            {                
+                user.Roles = await FindUserRolesAsync(user.UserID);
             }
 
             return Ok(users);
@@ -62,7 +62,13 @@ namespace LCMSMSWebApi.Controllers
         public async Task<ActionResult<List<RoleDTO>>> Get()
         {
             return await context.Roles
-                .Select(x => new RoleDTO { RoleName = x.Name }).ToListAsync();
+                .Select(x => new RoleDTO 
+                { 
+                    RoleName = x.Name,
+                    DisplayName = RoleDTO.GetDisplayNameByRoleName(x.Name),
+                    RoleDescription = RoleDTO.GetDecscriptionByRoleName(x.Name)
+                    
+                }).ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -76,11 +82,7 @@ namespace LCMSMSWebApi.Controllers
                 Email = user.Email,
             };
 
-            var roles = await userManager.GetRolesAsync(user);
-            if (roles.Count > 0)
-            {
-                userDto.Role = roles[0];
-            }
+            userDto.Roles = await FindUserRolesAsync(id);
 
             return Ok(userDto);
         }
@@ -100,17 +102,25 @@ namespace LCMSMSWebApi.Controllers
             userFromDb.Email = string.IsNullOrWhiteSpace(userDto.Email)
                 ? userFromDb.Email : userDto.Email;
 
-            // If already in role, do nothing. Else remove existing role and replace
-            var roles = await userManager.GetRolesAsync(userFromDb);
-            bool isAlreadyInRole = await userManager.IsInRoleAsync(userFromDb, userDto.Role);
-            if (!isAlreadyInRole)
+            // Add user to role. If already in role, do nothing.           
+            foreach (var role in userDto.Roles)
             {
-                if (roles.Count > 0)
+                bool isAlreadyInRole = await userManager.IsInRoleAsync(userFromDb, role.RoleName);
+                if (!isAlreadyInRole)
                 {
-                    await userManager.RemoveFromRoleAsync(userFromDb, roles[1]);
+                    await userManager.AddToRoleAsync(userFromDb, role.RoleName);
                 }
+            }
 
-                await userManager.AddToRoleAsync(userFromDb, userDto.Role);
+            // Remove user from existing role if role is not selected
+            var existingRoles = await userManager.GetRolesAsync(userFromDb);
+            foreach (var role in existingRoles)
+            {
+                bool keepInRole = userDto.Roles.Any(x => x.RoleName.Equals(role));
+                if (!keepInRole)
+                {
+                    await userManager.RemoveFromRoleAsync(userFromDb, role);
+                }
             }
 
             return NoContent();
@@ -149,15 +159,21 @@ namespace LCMSMSWebApi.Controllers
             return NoContent();
         }
 
-        private async Task<string> FindUserRoleAsync(string userId)
+        private async Task<List<RoleDTO>> FindUserRolesAsync(string userId)
         {
             var userFromDb = context.Users.FirstOrDefault(x => x.Id == userId);
             var roles = await userManager.GetRolesAsync(userFromDb);
-            if (roles.ToList().Count > 0)
+            var rolesList = new List<RoleDTO>();           
+            foreach (var role in roles)
             {
-                return roles[0];
+                rolesList.Add(new RoleDTO
+                {
+                    RoleName = role,
+                    DisplayName = RoleDTO.GetDisplayNameByRoleName(role),
+                    RoleDescription = RoleDTO.GetDecscriptionByRoleName(role)
+                });
             }
-            return "";
+            return rolesList;
         }
     }
 }

@@ -50,8 +50,12 @@ namespace LCMSMSWebApi.Controllers
             };
             var result = await userManager.CreateAsync(user, newUser.Password);
 
-            // assign role
-            await userManager.AddToRoleAsync(user, newUser.Role);
+            // assign role(s)
+            foreach (var role in newUser.Roles)
+            {
+                await userManager.AddToRoleAsync(user, role.RoleName);
+            }
+            
 
             // for the token
             var userInfo = new UserInfoDTO

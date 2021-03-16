@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 
 namespace LCMSMSWebApi.Controllers
@@ -29,13 +30,15 @@ namespace LCMSMSWebApi.Controllers
         private readonly OrphanService _orphanService;
         private readonly IPictureStorageService _pictureStorageService;
         private readonly PictureService _pictureService;
+        private readonly ILogger<GuardiansController> _logger;
 
         public GuardiansController(ApplicationDbContext dbContext, 
             IMapper mapper, 
             ISyncDatabasesService syncDatabasesService,
             OrphanService orphanService,
             IPictureStorageService pictureStorageService,
-            PictureService pictureService)
+            PictureService pictureService,
+            ILogger<GuardiansController> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -43,13 +46,14 @@ namespace LCMSMSWebApi.Controllers
             _orphanService = orphanService;
             _pictureStorageService = pictureStorageService;
             _pictureService = pictureService;
+            _logger = logger;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
             var guardians = _dbContext.Guardians.ToList();
-            var guradiansDto = _mapper.Map<List<GuardianDTO>>(guardians);
+            var guradiansDto = _mapper.Map<List<GuardianDTO>>(guardians);        
 
             return Ok(guradiansDto);
         }
@@ -168,7 +172,8 @@ namespace LCMSMSWebApi.Controllers
 
             await _dbContext.Guardians.AddAsync(guardian);
             await _dbContext.SaveChangesAsync();
-
+          
+            
             await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
 
             guardianDto = _mapper.Map<GuardianDTO>(guardian);
@@ -180,23 +185,36 @@ namespace LCMSMSWebApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] GuardianUpdateDTO guardianUpdateDto)
         {
-
-            var guardian = await _dbContext.Guardians.FirstOrDefaultAsync(x => x.GuardianID == id);
-
-            if (guardian == null)
+            try
             {
-                return NotFound();
+                var guardian = await _dbContext.Guardians.FirstOrDefaultAsync(x => x.GuardianID == id);
+
+                if (guardian == null)
+                {
+                    return NotFound();
+                }
+
+                guardian.FirstName = guardianUpdateDto.FirstName;
+                guardian.LastName = guardianUpdateDto.LastName;
+                guardian.Location = guardianUpdateDto.Location;
+                guardian.MainPhone = guardianUpdateDto.MainPhone;
+                guardian.AltPhone1 = guardianUpdateDto.AltPhone1;
+                guardian.AltPhone2 = guardianUpdateDto.AltPhone2;
+                guardian.AltPhone3 = guardianUpdateDto.AltPhone3;
+
+
+                await _dbContext.SaveChangesAsync();
+
+                await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
+
+                return NoContent();
             }
-
-            guardian.FirstName = guardianUpdateDto.FirstName;
-            guardian.LastName = guardianUpdateDto.LastName;
-            guardian.Location = guardianUpdateDto.Location;
-
-            await _dbContext.SaveChangesAsync();
-
-            await _syncDatabasesService.UpdateLastUpdatedTimeStamp();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest();
+            }           
+            
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
