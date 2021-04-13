@@ -31,7 +31,7 @@ namespace LCMSMSWebApi.DTOs
                 case "GuardianReadWrite":
                     return "Guardian Portal";
                 case "SponsorReadWrite":
-                    return "Sponosor Portal";
+                    return "Sponsor Portal";
                 case "OrphanReadOnly":
                     return "Orphan Portal - Read Only";
                 case "GuardianReadOnly":

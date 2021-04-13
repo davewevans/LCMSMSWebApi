@@ -96,7 +96,21 @@ namespace LCMSMSWebApi.Controllers
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                guardians = (from guardian in data
+                if (searchTerm.Trim().ToLower().Equals("deceased"))
+                {
+                    guardians = (from guardian in data
+                                 where guardian.IsDeceased == true
+                                 select guardian)
+                         .Skip(skip)
+                         .Take(top)
+                         .OrderByDynamic(columnName, descending)
+                         .ToList();
+
+                    count = guardians.Count();
+                }
+                else // search term not "deceased"
+                {
+                    guardians = (from guardian in data
                            where guardian.FirstName.ToLower().Contains(searchTerm.ToLower()) ||
                            guardian.LastName.ToLower().Contains(searchTerm.ToLower())
                            select guardian)
@@ -104,6 +118,11 @@ namespace LCMSMSWebApi.Controllers
                            .Take(top)
                            .OrderByDynamic(columnName, descending)
                            .ToList();
+
+                    count = guardians.Count();
+                }
+
+              
             }
             else // No search term 
             {
@@ -196,6 +215,7 @@ namespace LCMSMSWebApi.Controllers
 
                 guardian.FirstName = guardianUpdateDto.FirstName;
                 guardian.LastName = guardianUpdateDto.LastName;
+                guardian.IsDeceased = guardianUpdateDto.IsDeceased;
                 guardian.Location = guardianUpdateDto.Location;
                 guardian.MainPhone = guardianUpdateDto.MainPhone;
                 guardian.AltPhone1 = guardianUpdateDto.AltPhone1;

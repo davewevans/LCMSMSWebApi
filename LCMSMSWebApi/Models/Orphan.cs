@@ -29,6 +29,9 @@ namespace LCMSMSWebApi.Models
         public string LCMStatus { get; set; }
 
         [MaxLength(30)]
+        public string ExitStatus { get; set; }
+
+        [MaxLength(30)]
         public string ProfileNumber { get; set; }
 
         public DateTime? YearOfAdmission { get; set; }
@@ -59,6 +62,8 @@ namespace LCMSMSWebApi.Models
         public List<OrphanPicture> OrphanPictures { get; set; }
 
         public List<Document> Documents { get; set; }
+
+        public List<OrphanHistory> History { get; set; }
 
     }
 }

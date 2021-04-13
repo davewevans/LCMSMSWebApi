@@ -15,6 +15,8 @@ namespace LCMSMSWebApi.Models
         [MaxLength(100)]
         public string LastName { get; set; } = string.Empty;
 
+        public bool IsDeceased { get; set; }
+
         [Required(ErrorMessage = "An entry date is required.")]
         public DateTime EntryDate { get; set; }
 

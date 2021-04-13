@@ -8,11 +8,7 @@ namespace LCMSMSWebApi.DTOs
 
         public string Subject { get; set; }
 
-        public string SubjectPendingApproval { get; set; }
-
         public string Note { get; set; }
-
-        public string NotePendingApproval { get; set; }
 
         public DateTime EntryDate { get; set; }
 
@@ -22,13 +18,21 @@ namespace LCMSMSWebApi.DTOs
 
         public string SubmittedByID { get; set; }
 
+        public string SubmittedByEmail { get; set; }
+
         public DateTime? ApprovedAt { get; set; }
 
         public string ApprovedByID { get; set; }
 
+        public string ApprovedByEmail { get; set; }
+
         public string SubmittedByName { get; set; }
 
         public string ApprovedByName { get; set; }
+
+        public string OrphanName { get; set; }
+
+        public string GuardianName { get; set; }
 
         public int? OrphanID { get; set; }
 

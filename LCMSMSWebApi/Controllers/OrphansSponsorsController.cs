@@ -51,7 +51,21 @@ namespace LCMSMSWebApi.Controllers
         [HttpPost("removeSponsor")]
         public async Task<ActionResult> PostRemove([FromBody] OrphanSponsorDTO orphanSponsorDto)
         {
-            var recordToRemove = await _dbContext.OrphanSponsors.FirstOrDefaultAsync(x => x.OrphanID == orphanSponsorDto.OrphanID && x.SponsorID == orphanSponsorDto.SponsorID);
+            var recordToRemove = await _dbContext.OrphanSponsors
+                .FirstOrDefaultAsync(x => x.OrphanID == orphanSponsorDto.OrphanID && x.SponsorID == orphanSponsorDto.SponsorID);
+
+
+            var orphanHistory = new OrphanHistory
+            {
+                OrphanID = orphanSponsorDto.OrphanID,
+                SponsorID = orphanSponsorDto.SponsorID,
+                EntryDate = DateTime.UtcNow,
+                UnassignedAt = DateTime.UtcNow
+            };
+
+            // Add to orphan history
+            _dbContext.OrphanHistory.Add(orphanHistory);
+            await _dbContext.SaveChangesAsync();
 
             if (recordToRemove == null)
             {

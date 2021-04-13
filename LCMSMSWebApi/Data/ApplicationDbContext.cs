@@ -31,5 +31,6 @@ namespace LCMSMSWebApi.Data
         public DbSet<OrphanSponsor> OrphanSponsors { get; set; }
         public DbSet<OrphanPicture> OrphanPictures { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<OrphanHistory> OrphanHistory { get; set; }
     }
 }

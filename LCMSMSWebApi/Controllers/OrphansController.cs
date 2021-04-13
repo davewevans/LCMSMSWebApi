@@ -159,7 +159,23 @@ namespace LCMSMSWebApi.Controllers
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                orphans = (from orphan in data
+                if (searchTerm.Trim().ToLower().Equals("deceased"))
+                {
+                    orphans = (from orphan in data
+                               where orphan.LCMStatus.ToLower().Contains(searchTerm.Trim().ToLower()) ||
+                               orphan.ExitStatus.ToLower().Contains(searchTerm.Trim().ToLower()) 
+                               select orphan)
+                          .Skip(skip)
+                          .Take(top)
+                          .OrderByDynamic(columnName, descending)
+                          .ToList();
+
+                    // update the count
+                    count = orphans.Count();
+                }
+                else // search term not "deceased"
+                {
+                    orphans = (from orphan in data
                           where orphan.FirstName.ToLower().Contains(searchTerm.ToLower()) ||
                           orphan.MiddleName.ToLower().Contains(searchTerm.ToLower()) ||
                           orphan.LastName.ToLower().Contains(searchTerm.ToLower()) ||
@@ -169,6 +185,13 @@ namespace LCMSMSWebApi.Controllers
                            .Take(top)
                            .OrderByDynamic(columnName, descending)
                            .ToList();
+
+                    // update the count
+                    count = orphans.Count();
+                }
+
+
+               
             }
             else // No search term 
             {
@@ -325,6 +348,42 @@ namespace LCMSMSWebApi.Controllers
         }
 
         /// <summary>
+        /// Returns the orphans history of previous guardians and sponsors.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("orphanHistory/{id}")]
+        public ActionResult<List<OrphanHistoryDTO>> GetOrphanHistory(int id)
+        {
+            var orphanHistory = _dbContext.OrphanHistory.Where(x => x.OrphanID == id).ToList();
+            var orphanHistoryDtos = new List<OrphanHistoryDTO>();
+
+            foreach (var history in orphanHistory)
+            {
+                var orphanHistorydto = new OrphanHistoryDTO();
+                orphanHistorydto.OrphanID = id;
+                orphanHistorydto.UnassignedAt = history.UnassignedAt;
+
+                if (history.GuardianID != null)
+                {
+                    orphanHistorydto.GuardianID = history.GuardianID;
+                    var guardian = _dbContext.Guardians.FirstOrDefault(x => x.GuardianID == history.GuardianID);
+                    orphanHistorydto.GuardianName = $"{guardian.FirstName} {guardian.LastName}";
+                    orphanHistorydto.RelationshipToGuardian = history.RelationshipToGuardian;
+                }
+                else if (history.SponsorID != null) 
+                {
+                    orphanHistorydto.SponsorID = history.SponsorID;
+                    var sponsor = _dbContext.Sponsors.FirstOrDefault(x => x.SponsorID == history.SponsorID);
+                    orphanHistorydto.SponsorName = $"{sponsor.FirstName} {sponsor.LastName}";
+                }
+                orphanHistoryDtos.Add(orphanHistorydto);
+            }
+
+            return Ok(orphanHistoryDtos);
+        }
+
+        /// <summary>
         /// Create new orphan record.
         /// </summary>
         /// <param name="orphanDto"></param>
@@ -345,6 +404,34 @@ namespace LCMSMSWebApi.Controllers
             orphanDto = _mapper.Map<OrphanDTO>(orphan);
 
             return new CreatedAtRouteResult("orphanDetails", new { id = orphanDto.OrphanID }, orphanDto);
+        }
+
+        /// <summary>
+        /// Create new orphan history record.
+        /// </summary>
+        /// <param name="orphanDto"></param>
+        /// <returns></returns>
+        [HttpPost("newOrphanHistory")]
+        public async Task<ActionResult> PostOrphanHistory([FromBody] OrphanHistoryDTO orphanHistoryDto)
+        {
+            // new orphan history
+            if (orphanHistoryDto.GuardianID != null)
+            {
+                var orphanHistory = new OrphanHistory
+                {
+                    OrphanID = orphanHistoryDto.OrphanID,
+                    GuardianID = orphanHistoryDto.GuardianID,
+                    RelationshipToGuardian = orphanHistoryDto.RelationshipToGuardian,
+                    EntryDate = DateTime.UtcNow,
+                    UnassignedAt = DateTime.UtcNow
+                };
+
+                // Add to orphan history
+                _dbContext.OrphanHistory.Add(orphanHistory);
+                await _dbContext.SaveChangesAsync();               
+            }           
+
+            return Ok();
         }
 
         /// <summary>
@@ -387,10 +474,10 @@ namespace LCMSMSWebApi.Controllers
                 return NotFound("Record not found.");
             }
 
+
             patchOrphan.ApplyTo(recordToPatch, ModelState);
             await _dbContext.SaveChangesAsync();
             return Ok(recordToPatch);
-
         }
 
         /// <summary>

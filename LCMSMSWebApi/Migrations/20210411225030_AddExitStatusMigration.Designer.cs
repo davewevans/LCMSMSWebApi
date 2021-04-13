@@ -4,14 +4,16 @@ using LCMSMSWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LCMSMSWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210411225030_AddExitStatusMigration")]
+    partial class AddExitStatusMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,9 +226,6 @@ namespace LCMSMSWebApi.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
-                    b.Property<bool>("IsDeceased")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -358,38 +357,6 @@ namespace LCMSMSWebApi.Migrations
                     b.HasIndex("GuardianID");
 
                     b.ToTable("Orphans");
-                });
-
-            modelBuilder.Entity("LCMSMSWebApi.Models.OrphanHistory", b =>
-                {
-                    b.Property<int>("OrphanHistoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("EntryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("GuardianID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrphanID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RelationshipToGuardian")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("SponsorID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UnassignedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("OrphanHistoryID");
-
-                    b.HasIndex("OrphanID");
-
-                    b.ToTable("OrphanHistory");
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.OrphanPicture", b =>
@@ -674,15 +641,6 @@ namespace LCMSMSWebApi.Migrations
                     b.HasOne("LCMSMSWebApi.Models.Guardian", "Guardian")
                         .WithMany("Orphans")
                         .HasForeignKey("GuardianID");
-                });
-
-            modelBuilder.Entity("LCMSMSWebApi.Models.OrphanHistory", b =>
-                {
-                    b.HasOne("LCMSMSWebApi.Models.Orphan", null)
-                        .WithMany("History")
-                        .HasForeignKey("OrphanID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("LCMSMSWebApi.Models.OrphanPicture", b =>

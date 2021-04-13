@@ -15,6 +15,8 @@ namespace LCMSMSWebApi.DTOs
 
         public string LastName { get; set; } = string.Empty;
 
+        public bool IsDeceased { get; set; }
+
         public string FullName => $"{ FirstName } { LastName }";
 
         public DateTime EntryDate { get; set; }

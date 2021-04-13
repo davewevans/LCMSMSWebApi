@@ -13,6 +13,5 @@ namespace LCMSMSWebApi.Models
         public Orphan Orphan { get; set; }
 
         public Picture Picture { get; set; }
-        
     }
 }

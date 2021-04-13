@@ -9,6 +9,8 @@ namespace LCMSMSWebApi.DTOs
 
         public string LastName { get; set; } = string.Empty;
 
+        public bool IsDeceased { get; set; }
+
         public DateTime EntryDate { get; set; }
 
         public string Location { get; set; }

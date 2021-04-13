@@ -23,6 +23,8 @@ namespace LCMSMSWebApi.DTOs
 
         public string LCMStatus { get; set; }
 
+        public string ExitStatus { get; set; }
+
         public string ProfileNumber { get; set; }
 
         public DateTime? YearOfAdmission { get; set; }
