@@ -12,6 +12,8 @@ namespace LCMSMSWebApi.DTOs
 
         public bool Approved { get; set; }
 
+        public bool Rejected { get; set; }
+
         public DateTime? SubmittedAt { get; set; }
 
         public string SubmittedByID { get; set; }
@@ -22,9 +24,17 @@ namespace LCMSMSWebApi.DTOs
 
         public string ApprovedByID { get; set; }
 
+        public DateTime? RejectedAt { get; set; }
+
+        public string RejectedByID { get; set; }
+
+        public string Comments { get; set; }
+
         public string SubmittedByName { get; set; }
 
-        public string ApprovedByName { get; set; }       
+        public string ApprovedByName { get; set; }
+
+        public string RejectedByName { get; set; }
 
         public int? OrphanID { get; set; }
 

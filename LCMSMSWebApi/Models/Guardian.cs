@@ -17,6 +17,8 @@ namespace LCMSMSWebApi.Models
 
         public bool IsDeceased { get; set; }
 
+        public int NumberOfDependents { get; set; } = 0;
+
         [Required(ErrorMessage = "An entry date is required.")]
         public DateTime EntryDate { get; set; }
 

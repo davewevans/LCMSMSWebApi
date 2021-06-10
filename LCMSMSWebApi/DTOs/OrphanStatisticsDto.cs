@@ -14,7 +14,7 @@
 
         public int InactiveWorkingCount { get; set; }
 
-        public int InactiveDeceasedCount { get; set; }
+        public int InactiveDeceasedCount { get; set; }        
 
         public int UnknownCount
         {

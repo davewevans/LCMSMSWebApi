@@ -12,6 +12,7 @@ using LCMSMSWebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,7 @@ namespace LCMSMSWebApi.Controllers
         private readonly IPictureStorageService _pictureStorageService;
         private readonly PictureService _pictureService;
         private readonly ILogger<GuardiansController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public GuardiansController(ApplicationDbContext dbContext, 
             IMapper mapper, 
@@ -38,7 +40,8 @@ namespace LCMSMSWebApi.Controllers
             OrphanService orphanService,
             IPictureStorageService pictureStorageService,
             PictureService pictureService,
-            ILogger<GuardiansController> logger)
+            ILogger<GuardiansController> logger,
+            UserManager<ApplicationUser> userManager)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -47,6 +50,7 @@ namespace LCMSMSWebApi.Controllers
             _pictureStorageService = pictureStorageService;
             _pictureService = pictureService;
             _logger = logger;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -154,8 +158,24 @@ namespace LCMSMSWebApi.Controllers
             }
 
             guardian.Narrations = guardian.Narrations.OrderByDescending(n => n.EntryDate).ToList();
+            var guardianDto = _mapper.Map<GuardianDTO>(guardian);
 
-            return _mapper.Map<GuardianDTO>(guardian);
+            // Get approved by and submitted by name and email
+            foreach (var narration in guardianDto.Narrations)
+            {
+                if (narration.Approved)
+                {
+                    var approvedByUser = await _userManager.FindByIdAsync(narration.ApprovedByID);
+                    narration.ApprovedByEmail = approvedByUser?.Email;
+                    narration.ApprovedByName = $"{approvedByUser?.FirstName} {approvedByUser?.LastName}";
+
+                    var submittedByUser = await _userManager.FindByIdAsync(narration.SubmittedByID);
+                    narration.SubmittedByEmail = submittedByUser?.Email;
+                    narration.SubmittedByName = $"{submittedByUser?.FirstName} {submittedByUser?.LastName}";
+                }
+            }
+
+            return Ok(guardianDto);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -221,6 +241,7 @@ namespace LCMSMSWebApi.Controllers
                 guardian.AltPhone1 = guardianUpdateDto.AltPhone1;
                 guardian.AltPhone2 = guardianUpdateDto.AltPhone2;
                 guardian.AltPhone3 = guardianUpdateDto.AltPhone3;
+                guardian.NumberOfDependents = guardianUpdateDto.NumberOfDependents;
 
 
                 await _dbContext.SaveChangesAsync();

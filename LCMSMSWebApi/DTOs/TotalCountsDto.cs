@@ -7,5 +7,7 @@
         public int TotalGuardians { get; set; }
 
         public int TotalSponsors { get; set; }
+
+        public int TotalVulnerables { get; set; }
     }
 }

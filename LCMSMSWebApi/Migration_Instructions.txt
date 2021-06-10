@@ -1,0 +1,8 @@
+﻿cd LCMSMSWebApi
+
+dotnet ef migrations add [Migration_Name_Goes_Here_Without_Brackets] --context ApplicationDbContext
+
+dotnet ef database update --context ApplicationDbContext
+
+dotnet ef migrations add AddPropsToNarration --context ApplicationDbContext
+

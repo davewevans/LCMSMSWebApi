@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using LCMSMSWebApi.enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace LCMSMSWebApi.Controllers
 {
@@ -35,8 +36,8 @@ namespace LCMSMSWebApi.Controllers
         private readonly PictureService _pictureService;
         private readonly OrphanService _orphanService;
         private readonly ILogger<OrphansController> _logger;
-        
-        
+        private readonly UserManager<ApplicationUser> userManager;
+
 
         public OrphansController(ApplicationDbContext dbContext,
             IMapper mapper,
@@ -45,7 +46,8 @@ namespace LCMSMSWebApi.Controllers
             IDocumentStorageService documentStorageService,
             PictureService pictureService,
             OrphanService orphanService,
-            ILogger<OrphansController> logger)
+            ILogger<OrphansController> logger,
+            UserManager<ApplicationUser> userManager)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -55,6 +57,7 @@ namespace LCMSMSWebApi.Controllers
             _pictureService = pictureService;
             _orphanService = orphanService;
             _logger = logger;
+            this.userManager = userManager;
         }
 
         /// <summary>
@@ -255,6 +258,21 @@ namespace LCMSMSWebApi.Controllers
 
             // Sort Narrations
             orphanDto.Narrations = orphanDto.Narrations.OrderByDescending(n => n.EntryDate).ToList();
+
+            // Get approved by and submitted by name and email
+            foreach (var narration in orphanDto.Narrations)
+            {
+                if (narration.Approved)
+                {
+                    var approvedByUser = await userManager.FindByIdAsync(narration.ApprovedByID);
+                    narration.ApprovedByEmail = approvedByUser?.Email;
+                    narration.ApprovedByName = $"{approvedByUser?.FirstName} {approvedByUser?.LastName}";
+
+                    var submittedByUser = await userManager.FindByIdAsync(narration.SubmittedByID);
+                    narration.SubmittedByEmail = submittedByUser?.Email;
+                    narration.SubmittedByName = $"{submittedByUser?.FirstName} {submittedByUser?.LastName}";
+                }                
+            }
 
             // Append location to profile # (ex: LCM 105-W)
             orphanDto.ProfileNumber = _orphanService.AppendLocationToProfileNumber(orphanDto.ProfileNumber, orphanDto.Location);

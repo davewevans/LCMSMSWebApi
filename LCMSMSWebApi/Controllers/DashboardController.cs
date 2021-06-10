@@ -36,7 +36,8 @@ namespace LCMSMSWebApi.Controllers
             {
                 TotalOrphans = await _dbContext.Orphans.CountAsync(),
                 TotalGuardians = await _dbContext.Guardians.CountAsync(),
-                TotalSponsors = await _dbContext.Sponsors.CountAsync()
+                TotalSponsors = await _dbContext.Sponsors.CountAsync(),
+                TotalVulnerables = await _dbContext.Orphans.CountAsync(x => x.Condition.Equals("Vulnerable"))
             };
 
             return Ok(totalCounts);
@@ -49,11 +50,11 @@ namespace LCMSMSWebApi.Controllers
             {
                 ActiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Active")),
                 InactiveCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Not Active") || x.LCMStatus.Equals("Inactive")),
-                ActiveInSchoolCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Active-In School"),
-                ActiveNotInSchoolCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Active-Not In School"),
-                InactiveMarriedCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Inactive-Married"),
-                InactiveWorkingCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Inactive-Working"),
-                InactiveDeceasedCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus == "Inactive-Deceased"),
+                ActiveInSchoolCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Active-In School")),
+                ActiveNotInSchoolCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Active-Not In School")),
+                InactiveMarriedCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Inactive-Married")),
+                InactiveWorkingCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Inactive-Working")),
+                InactiveDeceasedCount = await _dbContext.Orphans.CountAsync(x => x.LCMStatus.Equals("Inactive-Deceased")),                
                 TotalCount = await _dbContext.Orphans.CountAsync(),
             };
 
